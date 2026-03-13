@@ -1,0 +1,2243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI MNK Study — University of Cambridge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+/* ======================================================
+   GLOBAL
+====================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #f0f2f5;
+  color: #1a1a2e;
+}
+
+/* ======================================================
+   CONSENT SCREEN
+====================================================== */
+#consent-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 16px 48px;
+  background: linear-gradient(135deg, #f0f4f8 0%, #e8edf3 100%);
+}
+.cam-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+  width: 100%;
+  max-width: 860px;
+}
+.cam-badge {
+  background: #003b5c;
+  color: white;
+  font-family: 'DM Serif Display', serif;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  padding: 8px 16px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.cam-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  color: #003b5c;
+  line-height: 1.3;
+}
+.consent-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  width: 100%;
+  max-width: 860px;
+  overflow: hidden;
+}
+.tab-bar {
+  display: flex;
+  border-bottom: 2px solid #e5e8ec;
+  background: #f8f9fb;
+}
+.tab-btn {
+  flex: 1;
+  padding: 16px 12px;
+  border: none;
+  background: transparent;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.tab-btn.active {
+  color: #003b5c;
+  border-bottom-color: #003b5c;
+  background: white;
+}
+.tab-btn .tab-num {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: #e5e8ec;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.tab-btn.active .tab-num { background: #003b5c; color: white; }
+.tab-btn.completed .tab-num { background: #16a34a; color: white; }
+.tab-content {
+  padding: 32px 36px;
+  max-height: 55vh;
+  overflow-y: auto;
+  line-height: 1.7;
+  font-size: 14.5px;
+}
+.doc-section h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  color: #003b5c;
+  margin-bottom: 6px;
+}
+.doc-section .study-subtitle {
+  color: #059669;
+  font-weight: 600;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+.doc-section h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin: 18px 0 6px;
+}
+.doc-section p { margin-bottom: 10px; color: #374151; }
+.doc-section ol { padding-left: 22px; margin-bottom: 10px; }
+.doc-section ol li { margin-bottom: 8px; color: #374151; }
+.doc-section ol li strong { color: #1a1a2e; }
+.contact-box {
+  background: #f0f4f8;
+  border-left: 4px solid #003b5c;
+  padding: 12px 16px;
+  border-radius: 0 6px 6px 0;
+  margin-top: 20px;
+  font-size: 13px;
+}
+/* Consent checkboxes */
+.consent-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid #f0f2f5;
+}
+.consent-item:last-of-type { border-bottom: none; }
+.consent-cb {
+  width: 20px; height: 20px;
+  border: 2px solid #9ca3af;
+  border-radius: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 2px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+  background: white;
+}
+.consent-cb.checked { background: #003b5c; border-color: #003b5c; }
+.consent-cb.checked::after {
+  content: '✓';
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+}
+.consent-label { font-size: 14px; color: #374151; cursor: pointer; }
+.consent-num { font-weight: 700; color: #003b5c; margin-right: 4px; }
+.name-row {
+  display: flex;
+  gap: 20px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+.form-group { flex: 1; min-width: 180px; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid #e5e8ec;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: #1a1a2e;
+  outline: none;
+  transition: border-color 0.2s;
+  background: white;
+}
+.form-group input:focus, .form-group select:focus { border-color: #003b5c; }
+/* Demographics */
+.demo-intro { color: #6b7280; font-size: 14px; margin-bottom: 24px; line-height: 1.6; }
+.demo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.pi-row { display: flex; gap: 24px; margin-bottom: 16px; }
+.pi-item { font-size: 14px; }
+.pi-item strong { color: #003b5c; }
+/* Footer nav */
+.consent-footer {
+  padding: 20px 36px;
+  border-top: 1px solid #e5e8ec;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8f9fb;
+}
+.consent-footer .status-text { font-size: 13px; color: #6b7280; }
+.btn-primary {
+  background: #003b5c;
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+.btn-primary:hover:not(:disabled) { background: #004e7a; }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-secondary {
+  background: transparent;
+  color: #6b7280;
+  border: 2px solid #e5e8ec;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-secondary:hover { border-color: #003b5c; color: #003b5c; }
+
+/* ======================================================
+   STUDY SCREEN
+====================================================== */
+#study-screen {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.study-topbar {
+  background: #003b5c;
+  color: white;
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.study-topbar .tb-left { display: flex; align-items: center; gap: 16px; }
+.study-topbar .tb-title { font-family: 'DM Serif Display', serif; font-size: 16px; }
+.study-topbar .tb-pid { font-size: 12px; opacity: 0.7; }
+.game-progress {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.progress-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  transition: background 0.3s;
+}
+.progress-dot.done { background: #4ade80; }
+.progress-dot.current { background: white; }
+.study-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  height: calc(100vh - 40px);
+}
+/* LEFT PANEL */
+.left-panel {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #c8d0db;
+  background: white;
+}
+.game-info-bar {
+  background: #b1b1b1;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  font-size: 13px;
+  flex-shrink: 0;
+  min-height: 60px;
+}
+.gi-item { display: flex; align-items: center; gap: 8px; }
+.gi-label { color: #4b5563; font-weight: 500; }
+.agent-badge {
+  display: flex; align-items: center; gap: 4px;
+  background: white;
+  border: 2px solid;
+  border-radius: 6px;
+  padding: 2px 10px 2px 6px;
+  font-weight: 600;
+  font-size: 13px;
+}
+.agent-badge.blue { border-color: #2563eb; color: #2563eb; }
+.agent-badge.red  { border-color: #dc2626; color: #dc2626; }
+.vs-text { font-weight: 700; font-size: 15px; color: #374151; }
+.board-area {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+#board-svg { width: 100%; height: 100%; }
+.instruction-bar {
+  background: #b1b1b1;
+  padding: 10px 16px;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.instruction-bar .inst-text {
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.predict-prompt {
+  background: #fff7ed;
+  border: 2px solid #f59e0b;
+  border-radius: 8px;
+  padding: 10px 18px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: #92400e;
+  animation: pulse-border 1.5s ease-in-out infinite;
+}
+@keyframes pulse-border {
+  0%, 100% { border-color: #f59e0b; }
+  50% { border-color: #b45309; }
+}
+.predict-prompt strong { color: #003b5c; font-weight: 700; }
+.after-predict-msg {
+  background: #f0fdf4;
+  border: 2px solid #16a34a;
+  border-radius: 8px;
+  padding: 10px 18px;
+  text-align: center;
+  font-size: 14px;
+  color: #166534;
+}
+/* RIGHT PANEL */
+.right-panel {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  background: #fffeef;
+}
+.chart-section {
+  flex: 1;
+  border-bottom: 1px solid #c8d0db;
+  overflow: hidden;
+  display: flex;
+}
+.chart-section:last-child { border-bottom: none; }
+.chart-section svg { width: 100%; height: 100%; }
+
+/* ======================================================
+   THANKS SCREEN
+====================================================== */
+#thanks-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f0f4f8 0%, #e8edf3 100%);
+  padding: 40px 16px;
+  text-align: center;
+}
+.thanks-card {
+  background: white;
+  border-radius: 16px;
+  padding: 48px 52px;
+  max-width: 520px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+}
+.thanks-icon { font-size: 56px; margin-bottom: 16px; }
+.thanks-card h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 28px;
+  color: #003b5c;
+  margin-bottom: 12px;
+}
+.thanks-card p { color: #6b7280; font-size: 15px; line-height: 1.7; margin-bottom: 12px; }
+.submit-status {
+  margin-top: 20px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.submit-status.sending { background: #fef9c3; color: #854d0e; }
+.submit-status.success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.submit-status.error   { background: #fff1f2; color: #9f1239; border: 1px solid #fecdd3; }
+
+
+/* ======================================================
+   TUTORIAL SCREEN
+====================================================== */
+#tutorial-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  background: linear-gradient(135deg, #f0f4f8 0%, #e8edf3 100%);
+}
+.tut-card {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 4px 28px rgba(0,0,0,0.11);
+  width: 100%;
+  max-width: 740px;
+  overflow: hidden;
+}
+.tut-header {
+  background: #003b5c;
+  color: white;
+  padding: 22px 32px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.tut-header .tut-icon { font-size: 28px; }
+.tut-header h2 { font-family: 'DM Serif Display', serif; font-size: 22px; margin: 0; }
+.tut-header p  { font-size: 13px; opacity: 0.75; margin: 4px 0 0; }
+.tut-steps {
+  display: flex;
+  padding: 20px 32px 0;
+  gap: 8px;
+}
+.tut-step-dot {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: #e5e8ec;
+  transition: background 0.3s;
+}
+.tut-step-dot.active  { background: #f59e0b; }
+.tut-step-dot.done    { background: #003b5c; }
+.tut-body {
+  padding: 24px 32px 32px;
+}
+.tut-step-content { display: none; }
+.tut-step-content.visible { display: block; }
+.tut-step-content h3 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 19px;
+  color: #003b5c;
+  margin-bottom: 10px;
+}
+.tut-step-content p {
+  font-size: 14.5px;
+  color: #374151;
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+.tut-highlight-box {
+  background: #fffbeb;
+  border: 2px solid #f59e0b;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 14px 0;
+  font-size: 14px;
+  color: #78350f;
+}
+.tut-highlight-box strong { color: #003b5c; }
+.tut-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 14px 0;
+}
+.tut-info-box {
+  background: #f8f9fb;
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 13.5px;
+  color: #374151;
+  line-height: 1.6;
+}
+.tut-info-box strong { display: block; color: #003b5c; margin-bottom: 4px; }
+.tut-footer {
+  padding: 18px 32px;
+  border-top: 1px solid #e5e8ec;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8f9fb;
+}
+.tut-footer .tut-label { font-size: 13px; color: #6b7280; }
+
+/* Tutorial banner that overlays study screen during tutorial games */
+#tut-banner {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: #003b5c;
+  color: white;
+  padding: 10px 18px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-top: 3px solid #f59e0b;
+}
+#tut-banner .tut-banner-icon { font-size: 20px; flex-shrink: 0; }
+#tut-banner .tut-banner-text { flex: 1; }
+#tut-banner .tut-banner-text strong { color: #fbbf24; }
+#tut-banner .tut-banner-dismiss {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: white;
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: 'DM Sans', sans-serif;
+}
+#tut-banner .tut-banner-dismiss:hover { background: rgba(255,255,255,0.25); }
+.board-area { position: relative; }
+
+/* ======================================================
+   POPUP / OVERLAY
+====================================================== */
+#study-start-popup {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+#study-start-popup .popup-card {
+  background: white;
+  border-radius: 12px;
+  padding: 32px 36px;
+  max-width: 500px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+#study-start-popup .popup-card h2 { font-family: 'DM Serif Display', serif; font-size: 20px; color: #003b5c; margin-bottom: 12px; }
+#study-start-popup .popup-card p { font-size: 14px; color: #374151; margin-bottom: 20px; }
+#study-start-popup.hidden { display: none !important; }
+
+/* Questionnaire styling */
+.q-item { margin-bottom: 24px; }
+.post-item { margin-bottom: 24px; }
+
+/* Post questionnaire free response */
+.post-item textarea { width: 100%; min-height: 80px; padding: 10px 14px; border: 2px solid #e5e8ec; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: #1a1a2e; outline: none; transition: border-color 0.2s; background: white; }
+.post-item textarea:focus { border-color: #003b5c; }
+.q-item p { margin-bottom: 8px; font-size: 14px; color: #374151; }
+.q-item .likert, .post-item .likert { display: flex; gap: 6px; justify-content: space-between; position: relative; padding-bottom: 36px; width: 100%; }
+.q-item .likert input, .post-item .likert input { display: none; }
+.q-item .likert label, .post-item .likert label { font-size: 0; cursor: pointer; width: 36px; height: 36px; border: 2px solid #c8d0db; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.2s, border-color 0.2s; }
+.q-item .likert label::after, .post-item .likert label::after { content: attr(data-val); font-size: 12px; color: #374151; }
+.q-item .likert input:checked + label, .post-item .likert input:checked + label { background: #003b5c; border-color: #003b5c; color: white; }
+.q-item .likert label:hover, .post-item .likert label:hover { border-color: #003b5c; }
+.q-item .likert .scale-labels, .post-item .likert .scale-labels { position: absolute; top: 44px; left: 0; right: 0; display: flex; justify-content: space-between; font-size: 11px; color: #374151; }
+
+/* ======================================================
+   HIDDEN
+====================================================== */
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- ========================================================
+  CONSENT SCREEN
+======================================================== -->
+<div id="consent-screen">
+  <div class="cam-header">
+    <div class="cam-badge">UNIVERSITY OF CAMBRIDGE</div>
+    <div class="cam-title">AI MNK Study — Participant Onboarding</div>
+  </div>
+
+  <div class="consent-card">
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tab-btn-0" onclick="switchTab(0)">
+        <span class="tab-num">1</span> Information Sheet
+      </button>
+      <button class="tab-btn" id="tab-btn-1" onclick="switchTab(1)">
+        <span class="tab-num">2</span> Consent Form
+      </button>
+      <button class="tab-btn" id="tab-btn-2" onclick="switchTab(2)">
+        <span class="tab-num">3</span> Demographics
+      </button>
+      <button class="tab-btn" id="tab-btn-3" onclick="switchTab(3)">
+        <span class="tab-num">4</span> Questionnaire
+      </button>
+    </div>
+
+    <!-- TAB 0: Participant Information Sheet -->
+    <div class="tab-content" id="tab-0">
+      <div class="doc-section">
+        <h2>Participant Information Sheet</h2>
+        <p class="study-subtitle">A study investigating methods for enhancing user performance and experience in human-computer interaction tasks.</p>
+        <p>Thank you for your interest in this study. Before you decide to take part, it is important for you to understand why the research is being done and what it will involve. Please take time to read the following information carefully and discuss it with others if you wish. The study organiser is available if there is anything that is not clear or if you would like more information. Take time to decide whether or not you wish to take part.</p>
+        <h3>Purpose of the study</h3>
+        <p>This study aims to investigate how user performance and experience in computer-based tasks can be improved by novel interface or interaction features. The specific details of the study will be explained by the study organiser but the tasks you will undertake will involve some combination of: (i) transcribing, composing or editing text or code; (ii) assessing the quality of system-produced suggestions, explanations or task-assistance; and (iii) providing feedback in relation to presented images, video, audio or text. As you complete these tasks, we will log data reflecting how well the system supported you in executing the task, what interaction behaviours you exhibited, and details about your subjective user experience. At the end of the study, you may also be asked to reflect upon and compare your experience of the different tasks performed and interfaces experienced. Your participation in this study will contribute to a better understanding of user needs and behaviours, and inform human-computer interaction design more broadly. Further details are provided below.</p>
+        <h3>Further details</h3>
+        <ol>
+          <li><strong>Why have I been chosen?</strong> We aim to recruit a diverse range of participants to study user performance and experience in relation to computer-based tasks. No specialised background is typically required. However, in some cases we may specifically recruit participants with a particular background (e.g. existing knowledge of a topic or prior task experience) to examine how this influences task performance and experience. If relevant, this will be clearly stated in the call for participants or explained by the study organiser.</li>
+          <li><strong>Do I have to take part?</strong> No, participation is entirely voluntary. If you do decide to take part, you can still withdraw from the study at any time, without giving any reasons.</li>
+          <li><strong>Who is organising the study?</strong> John Douglas and Dr John Dudley are organising the research study. They are based in the Engineering Department at the University of Cambridge.</li>
+          <li><strong>What will happen during the study?</strong> You will be introduced to the study procedure and the tasks that you will be asked to perform. You may be asked to provide basic demographic data (e.g. age, gender, prior experience) but you may decline to provide this information if you wish. You will then be asked to complete the specified tasks during which performance data (e.g. task completion time) and interaction data (e.g. button click sequence) will be logged. At various intervals, you may also be asked questions regarding your experience of executing the tasks. This may include providing feedback, rating aspects of the task or system, and completing questionnaires regarding perceived workload (NASA-TLX), usability (SUS), user experience (UEQ), understanding (MMS), and creativity (CSI).</li>
+          <li><strong>What are the possible risks of taking part?</strong> The study will be completed on a computer, laptop, or smartphone, and there are no significant risks associated with participation. You may experience mild fatigue from looking at the screen, but you are free to take breaks at any time.</li>
+          <li><strong>What happens at the end of the study?</strong> At the end of the study, you may receive a short debrief. You may also ask any questions that you have. If you subsequently have questions, please feel free to contact the study organiser.</li>
+          <li><strong>What will happen to the study results?</strong> The anonymised results will be written up and published in academic papers and presented at research meetings. Collected data will be securely stored.</li>
+          <li><strong>Anonymity – will I be identified?</strong> The data will be anonymised and any references to the data will be done so that you are not identifiable.</li>
+          <li><strong>What if there is a problem?</strong> If you have a concern about any aspect of this study, you should ask to speak to the researcher(s) who will do their best to answer your questions.</li>
+          <li><strong>Who has reviewed the study?</strong> The Department of Engineering Ethics Committee has reviewed this study through the light-touch review process.</li>
+        </ol>
+        <div class="contact-box">
+          <strong>Contact Information</strong><br>
+          John Douglas — <a href="mailto:Jd2117@cam.ac.uk">Jd2117@cam.ac.uk</a><br>
+          University of Cambridge, Engineering Department
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 1: Consent Form -->
+    <div class="tab-content hidden" id="tab-1">
+      <div class="doc-section">
+        <h2>Participant Consent Form</h2>
+        <p class="study-subtitle">A study investigating curb-cut effects of inclusive explainable AI on AI-literate users.</p>
+        <div class="pi-row">
+          <div class="pi-item"><strong>Principal Investigator:</strong> Dr John Dudley</div>
+          <div class="pi-item"><strong>Researcher:</strong> John Douglas</div>
+        </div>
+        <p style="font-weight:600; margin-bottom: 14px;">Please tick all boxes that apply:</p>
+
+        <div id="consent-items"></div>
+
+        <div class="name-row">
+          <div class="form-group">
+            <label>PARTICIPANT ID<span style="color:#dc2626">*</span></label>
+            <input type="text" id="participant-name" placeholder="Please enter your participant ID" oninput="updateConsentState()">
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="text" id="consent-date" readonly>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Demographics -->
+    <div class="tab-content hidden" id="tab-2">
+      <div class="doc-section">
+        <h2>Demographic Questions</h2>
+        <p class="demo-intro">Please answer the following questions. It is fine to leave a response blank if you would prefer not to provide an answer. The purpose of collecting this information is to provide future readers of any potential publication with a general understanding of the characteristics of our participant group. All data will be anonymised.</p>
+        <p style="margin-bottom:20px; font-size: 13px; color: #6b7280;">Participant ID: <strong id="pid-display">—</strong></p>
+        <div class="demo-grid">
+          <div class="form-group">
+            <label>1. Gender Identity</label>
+            <input type="text" id="demo-gender" placeholder="Mandatory" oninput="updateConsentState()">
+          </div>
+          <div class="form-group">
+            <label>2. Age</label>
+            <input type="text" id="demo-age" placeholder="Optional" oninput="updateConsentState()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: Questionnaire -->
+    <div class="tab-content hidden" id="tab-3">
+      <div class="doc-section">
+        <h2>Pre‑study Questionnaire</h2>
+        <p class="demo-intro">For each statement below, please indicate your agreement on a scale of 1 (completely agree) to 9 (completely disagree). A response of 5 means neither agree nor disagree.</p>
+        <div id="questionnaire-items"></div>
+      </div>
+    </div>
+
+    <div class="consent-footer">
+      <span class="status-text" id="consent-status"></span>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button class="btn-secondary hidden" id="tab-back-btn" onclick="prevTab()">← Back</button>
+        <button class="btn-primary" id="consent-next-btn" onclick="nextTab()" disabled>Continue →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ========================================================
+  TUTORIAL SCREEN (slides)
+======================================================== -->
+<div id="tutorial-screen" class="hidden">
+  <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; width:100%; max-width:740px;">
+    <div class="cam-badge">UNIVERSITY OF CAMBRIDGE</div>
+    <span style="font-family:'DM Serif Display',serif; font-size:18px; color:#003b5c;">AI MNK Study</span>
+  </div>
+  <div class="tut-card">
+    <div class="tut-header">
+      <span class="tut-icon">🎓</span>
+      <div>
+        <h2>Tutorial</h2>
+        <p>Learn the interface before the study begins</p>
+      </div>
+    </div>
+    <div class="tut-steps" id="tut-step-dots"></div>
+    <div class="tut-body">
+
+      <!-- Step 0: Welcome -->
+      <div class="tut-step-content visible" id="tut-step-0">
+        <h3>Welcome to the Study</h3>
+        <p>In this study, you will watch two AI agents play modified games of <strong>MNK Tic-Tac-Toe</strong> on a 9×4 board. Your task is to <strong>predict where Agent Blue will play next</strong> before each of their moves.</p>
+        <div class="tut-two-col">
+          <div class="tut-info-box">
+            <strong>🔵 Agent Blue (X)</strong>
+            The AI agent you will predict. When it's their turn, you'll click the tile you think they'll choose.
+          </div>
+          <div class="tut-info-box">
+            <strong>🔴 Agent Red (O)</strong>
+            The opponent AI agent. Their moves are shown automatically — you do not predict them.
+          </div>
+        </div>
+        <div class="tut-highlight-box">
+          ℹ️ There are <strong>no right or wrong answers</strong>. This study is about understanding the AI, not about your accuracy. Take your best guess each time.
+        </div>
+      </div>
+
+      <!-- Step 1: The Board -->
+      <div class="tut-step-content" id="tut-step-1">
+        <h3>The Game Board</h3>
+        <p>The board is a <strong>9 columns × 4 rows</strong> grid. Columns are labelled A–I and rows 1–4. A tile is identified by its column + row, e.g. <strong>E2</strong>.</p>
+        <div class="tut-two-col">
+          <div class="tut-info-box">
+            <strong>📍 Navigating Moves</strong>
+            Use <em>Next Move</em> to advance through the game one move at a time. Use <em>Prior Move</em> to go back and review.
+          </div>
+          <div class="tut-info-box">
+            <strong>🏆 Winning</strong>
+            An agent wins by placing <strong>4 symbols in a row</strong> — horizontally, vertically, or diagonally. The winning tiles are highlighted at the end.
+          </div>
+        </div>
+        <div class="tut-highlight-box">
+          👉 The board shows a <strong>number on each symbol</strong> indicating the order moves were made (1 = first move of the game).
+        </div>
+      </div>
+
+      <!-- Step 2: The Visualisations -->
+      <div class="tut-step-content" id="tut-step-2">
+        <h3>The Visualisation Panel</h3>
+        <p>The right panel shows three AI scoring visualisations for Agent Blue. They update as the game progresses and become active after Blue's first move.</p>
+        <div class="tut-two-col">
+          <div class="tut-info-box">
+            <strong>📊 Best-to-Worst (BTW)</strong>
+            All possible moves ranked from best (left) to worst (right) by their estimated win probability.
+          </div>
+          <div class="tut-info-box">
+            <strong>⏱ Scores Through Time (TT)</strong>
+            How win probability changed move-by-move over the game so far.
+          </div>
+        </div>
+        <div class="tut-info-box" style="margin-top:10px;">
+          <strong>🗺 Scores On the Board (OTB)</strong>
+          A miniature heatmap of win probability for each tile, laid out on the board shape. Small dots show score values.
+        </div>
+        <div class="tut-highlight-box" style="margin-top:14px;">
+          💡 <strong>Hover over any board tile</strong> to highlight that tile's value across all three charts simultaneously.
+        </div>
+      </div>
+
+      <!-- Step 3: Your Task -->
+      <div class="tut-step-content" id="tut-step-3">
+        <h3>Your Task — Making Predictions</h3>
+        <p>Before each of Agent Blue's moves, the board tiles turn <strong>yellow</strong> and you will be prompted to click the tile you predict Blue will choose.</p>
+        <div class="tut-highlight-box">
+          🖱 <strong>Click a yellow tile</strong> to record your prediction. The actual move is then revealed and you can see how the charts update.
+        </div>
+        <p>After each Blue move you'll see your prediction compared with the actual move. Then click <em>Next Move</em> to continue. Red's moves advance automatically without a prediction.</p>
+        <div class="tut-two-col">
+          <div class="tut-info-box">
+            <strong>✅ After your prediction</strong>
+            You'll see "Your prediction: X3 | Blue played: F2" in the bar below the board.
+          </div>
+          <div class="tut-info-box">
+            <strong>↩ Prior Move</strong>
+            You can go back to review previous moves. If you return to a prediction point you've already answered, you won't be asked again.
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Ready for tutorial games -->
+      <div class="tut-step-content" id="tut-step-4">
+        <h3>Practice Games</h3>
+        <p>You'll now play through <strong>2 short practice games</strong> to get familiar with the interface before the real study begins.</p>
+        <div class="tut-two-col">
+          <div class="tut-info-box">
+            <strong>🎮 Tutorial Game 1</strong>
+            Agent Blue goes first. A straightforward game to practise the prediction flow.
+          </div>
+          <div class="tut-info-box">
+            <strong>🎮 Tutorial Game 2</strong>
+            Agent Red goes first this time. Remember: you only predict Blue's moves.
+          </div>
+        </div>
+        <div class="tut-highlight-box">
+          When the tutorial games are complete, the real study (10 games) will begin automatically.
+        </div>
+      </div>
+
+    </div>
+    <div class="tut-footer">
+      <span class="tut-label" id="tut-footer-label">Step 1 of 5</span>
+      <div style="display:flex; gap:10px;">
+        <button class="btn-secondary hidden" id="tut-back-btn" onclick="tutPrevStep()">← Back</button>
+        <button class="btn-primary" id="tut-next-btn" onclick="tutNextStep()">Continue →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================
+  STUDY SCREEN
+======================================================== -->
+<div id="study-screen" class="hidden">
+  <div class="study-topbar">
+    <div class="tb-left">
+      <span class="cam-badge" style="font-size:11px; padding:4px 10px;">CAMBRIDGE</span>
+      <span class="tb-title">AI MNK Study</span>
+    </div>
+    <div class="game-progress" id="game-progress"></div>
+  </div>
+  <div class="study-body">
+    <div class="left-panel">
+      <div class="game-info-bar" id="game-info-bar"></div>
+      <div class="board-area">
+        <div id="tut-banner" class="hidden"></div>
+        <svg id="board-svg" viewBox="0 0 1100 480" preserveAspectRatio="xMinYMid meet"></svg>
+      </div>
+      <div class="instruction-bar">
+        <div class="inst-text" id="instruction-text"></div>
+      </div>
+    </div>
+    <div class="right-panel">
+      <div class="chart-section" id="btw-section">
+        <svg id="btw-svg" viewBox="0 0 1100 390" preserveAspectRatio="xMinYMid meet"></svg>
+      </div>
+      <div class="chart-section" id="stt-section">
+        <svg id="stt-svg" viewBox="0 0 1100 390" preserveAspectRatio="xMinYMid meet"></svg>
+      </div>
+      <div class="chart-section" id="otb-section">
+        <svg id="otb-svg" viewBox="0 0 1100 390" preserveAspectRatio="xMinYMid meet"></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================
+  POST-EXPERIMENT QUESTIONNAIRE
+======================================================== -->
+<div id="post-screen" class="hidden" style="min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:32px 16px 48px; background:linear-gradient(135deg, #f0f4f8 0%, #e8edf3 100%);">
+  <div class="consent-card">
+    <div class="tab-content doc-section">
+      <h2>Post‑experiment questionnaire</h2>
+      <div id="post-items"></div>
+    </div>
+    <div class="consent-footer">
+      <span class="status-text" id="post-status"></span>
+      <button class="btn-primary" id="post-submit-btn" onclick="submitPostResponses()" disabled>Submit responses →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================
+  THANKS SCREEN
+======================================================== -->
+<div id="thanks-screen" class="hidden">
+  <div class="thanks-card">
+    <div class="thanks-icon">🎉</div>
+    <h1>Thank You!</h1>
+    <p>You have completed all 10 games. Your responses have been recorded and are being submitted to the research team.</p>
+    <p>If you have any questions about the study, please contact <a href="mailto:Jd2117@cam.ac.uk">Jd2117@cam.ac.uk</a>.</p>
+    <h2>Debrief</h2>
+    <p>The purpose of this study it to measure if inclusive, explainable AI builds better mental models for underserved users. Two interfaces are given in a between-subjects design, with this one being tailored towards "Tim-like" problem solving styles. To learn more, the original study can be found <a href="https://dl.acm.org/doi/10.1145/3772074">here</a>!</p>
+    <div class="submit-status sending" id="submit-status">⏳ Submitting your data…</div>
+  </div>
+</div>
+
+<!-- Study start confirmation popup -->
+<div id="study-start-popup" class="hidden">
+  <div class="popup-card">
+    <h2>Tutorial complete</h2>
+    <p>You have now finished the tutorial. The main part of the study will begin when you click the button below.</p>
+    <button class="btn-primary" onclick="startActualStudy()">Begin Study →</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIGURATION
+// ============================================================
+// TODO: Replace with your Formspree form ID.
+// Steps: 1) Go to https://formspree.io  2) Create account with Jd2117@cam.ac.uk
+// 3) Create a new form  4) Copy the form ID (e.g. "xyzabcde")
+// 5) Replace YOUR_FORM_ID below
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/xyknzyqa';
+
+// ============================================================
+// EMBEDDED GAME DATA
+// ============================================================
+const GAME_DATA = {"board_data": [{"GameNum": 0, "goes-first": "X", "winner": "X", "max_moves": 11, "x-moves": ["C4", "D3", "E2", "E3", "F3", "C3"], "o-moves": ["H1", "G2", "D2", "F1", "G3"], "win_sequence": ["C3", "D3", "E3", "F3"], "game_summary": "wins horizontally on move 11", "BTW-arrays": {"BTW-1": ["E1", "D1", "D3", "C2", "F2", "D4", "F1", "C3", "G3", "G2", "E2", "D2", "F4", "C4", "F3", "E3", "H1", "E4", "C1", "B3", "G4", "G1", "B4", "H4", "H3", "A4", "B1", "A1", "I1", "H2", "B2", "I4", "I2", "A2", "A3", "I3"], "BTW-3": ["D3", "C2", "G2", "F2", "F3", "E2", "E3", "G3", "D2", "H3", "B3", "E1", "F1", "D4", "D1", "C3", "F4", "E4", "A3", "B2", "A2", "I2", "C1", "G4", "G1", "I1", "B4", "I3", "A4", "A1", "H4", "I4", "B1", "H2", "H1", "C4"], "BTW-5": ["E2", "C2", "E3", "F3", "G3", "C3", "F2", "B3", "D2", "D1", "E1", "H3", "F1", "F4", "E4", "A3", "I2", "G4", "C1", "B2", "I3", "I1", "B4", "A4", "A2", "A1", "H4", "I4", "B1", "D4", "H2", "G1", "H1", "G2", "D3", "C4"], "BTW-7": ["E3", "C2", "C3", "F2", "G3", "B3", "F3", "F1", "F4", "H3", "E4", "G4", "C1", "I2", "A3", "I3", "B4", "A4", "I1", "B2", "H4", "A2", "A1", "B1", "D1", "I4", "D4", "E1", "H2", "G1", "H1", "D2", "E2", "G2", "D3", "C4"], "BTW-9": ["F3", "C3", "G3", "C2", "B3", "C1", "H3", "I2", "I3", "F4", "B4", "A4", "A3", "H2", "B2", "B1", "A2", "A1", "D1", "F2", "G4", "D4", "I1", "E1", "H4", "I4", "E4", "G1", "F1", "H1", "D2", "E2", "G2", "D3", "E3", "C4"], "BTW-11": ["C3", "C2", "B3", "I2", "H3", "C1", "I3", "A4", "A3", "B2", "H4", "B4", "I1", "E1", "D1", "B1", "A1", "A2", "H2", "I4", "D4", "G4", "F4", "F2", "E4", "G1", "F1", "H1", "D2", "E2", "G2", "D3", "E3", "F3", "G3", "C4"]}, "win_values": {"BTW-1": {"A1": [0.0477], "A2": [-0.0011], "A3": [-0.0255], "A4": [0.055], "B1": [0.0478], "B2": [0.0345], "B3": [0.09], "B4": [0.0733], "C1": [0.0917], "C2": [0.1515], "C3": [0.1451], "C4": [0.1168], "D1": [0.16], "D2": [0.1256], "D3": [0.1577], "D4": [0.1488], "E1": [0.1628], "E2": [0.1369], "E3": [0.1042], "E4": [0.1022], "F1": [0.1473], "F2": [0.1488], "F3": [0.1086], "F4": [0.1206], "G1": [0.0754], "G2": [0.1391], "G3": [0.1436], "G4": [0.0768], "H1": [0.1025], "H2": [0.0367], "H3": [0.0558], "H4": [0.0691], "I1": [0.0449], "I2": [0.0026], "I3": [-0.0365], "I4": [0.0278]}, "BTW-3": {"A1": [0.0477, -0.0396], "A2": [-0.0011, -0.0021], "A3": [-0.0255, 0.0002], "A4": [0.055, -0.0392], "B1": [0.0478, -0.053], "B2": [0.0345, -0.0004], "B3": [0.09, 0.0732], "B4": [0.0733, -0.0337], "C1": [0.0917, -0.0082], "C2": [0.1515, 0.1913], "C3": [0.1451, 0.0419], "C4": [0.1168, -1.0], "D1": [0.16, 0.046], "D2": [0.1256, 0.1056], "D3": [0.1577, 0.2199], "D4": [0.1488, 0.0488], "E1": [0.1628, 0.0543], "E2": [0.1369, 0.1212], "E3": [0.1042, 0.1207], "E4": [0.1022, 0.0056], "F1": [0.1473, 0.051], "F2": [0.1488, 0.1307], "F3": [0.1086, 0.122], "F4": [0.1206, 0.0326], "G1": [0.0754, -0.0135], "G2": [0.1391, 0.1311], "G3": [0.1436, 0.1189], "G4": [0.0768, -0.0107], "H1": [0.1025, -1.0], "H2": [0.0367, -0.0875], "H3": [0.0558, 0.0782], "H4": [0.0691, -0.0461], "I1": [0.0449, -0.0293], "I2": [0.0026, -0.0021], "I3": [-0.0365, -0.0381], "I4": [0.0278, -0.0516]}, "BTW-5": {"A1": [0.0477, -0.0396, -0.0263], "A2": [-0.0011, -0.0021, -0.0155], "A3": [-0.0255, 0.0002, 0.0224], "A4": [0.055, -0.0392, -0.0129], "B1": [0.0478, -0.053, -0.0654], "B2": [0.0345, -0.0004, 0.0105], "B3": [0.09, 0.0732, 0.1207], "B4": [0.0733, -0.0337, -0.0121], "C1": [0.0917, -0.0082, 0.0115], "C2": [0.1515, 0.1913, 0.2056], "C3": [0.1451, 0.0419, 0.1549], "C4": [0.1168, -1.0, -1.0], "D1": [0.16, 0.046, 0.0915], "D2": [0.1256, 0.1056, 0.1031], "D3": [0.1577, 0.2199, -1.0], "D4": [0.1488, 0.0488, -0.0815], "E1": [0.1628, 0.0543, 0.0843], "E2": [0.1369, 0.1212, 0.2072], "E3": [0.1042, 0.1207, 0.1935], "E4": [0.1022, 0.0056, 0.0274], "F1": [0.1473, 0.051, 0.0781], "F2": [0.1488, 0.1307, 0.1397], "F3": [0.1086, 0.122, 0.167], "F4": [0.1206, 0.0326, 0.0581], "G1": [0.0754, -0.0135, -0.1647], "G2": [0.1391, 0.1311, -1.0], "G3": [0.1436, 0.1189, 0.1594], "G4": [0.0768, -0.0107, 0.0135], "H1": [0.1025, -1.0, -1.0], "H2": [0.0367, -0.0875, -0.0985], "H3": [0.0558, 0.0782, 0.08], "H4": [0.0691, -0.0461, -0.0293], "I1": [0.0449, -0.0293, -0.0089], "I2": [0.0026, -0.0021, 0.0148], "I3": [-0.0365, -0.0381, 0.0033], "I4": [0.0278, -0.0516, -0.0454]}, "BTW-7": {"A1": [0.0477, -0.0396, -0.0263, 0.0418], "A2": [-0.0011, -0.0021, -0.0155, 0.0455], "A3": [-0.0255, 0.0002, 0.0224, 0.0996], "A4": [0.055, -0.0392, -0.0129, 0.0792], "B1": [0.0478, -0.053, -0.0654, 0.0282], "B2": [0.0345, -0.0004, 0.0105, 0.0676], "B3": [0.09, 0.0732, 0.1207, 0.217], "B4": [0.0733, -0.0337, -0.0121, 0.0828], "C1": [0.0917, -0.0082, 0.0115, 0.1185], "C2": [0.1515, 0.1913, 0.2056, 0.2809], "C3": [0.1451, 0.0419, 0.1549, 0.2791], "C4": [0.1168, -1.0, -1.0, -1.0], "D1": [0.16, 0.046, 0.0915, 0.0277], "D2": [0.1256, 0.1056, 0.1031, -1.0], "D3": [0.1577, 0.2199, -1.0, -1.0], "D4": [0.1488, 0.0488, -0.0815, 0.0129], "E1": [0.1628, 0.0543, 0.0843, -0.0083], "E2": [0.1369, 0.1212, 0.2072, -1.0], "E3": [0.1042, 0.1207, 0.1935, 0.396], "E4": [0.1022, 0.0056, 0.0274, 0.1289], "F1": [0.1473, 0.051, 0.0781, 0.1805], "F2": [0.1488, 0.1307, 0.1397, 0.2265], "F3": [0.1086, 0.122, 0.167, 0.2141], "F4": [0.1206, 0.0326, 0.0581, 0.1514], "G1": [0.0754, -0.0135, -0.1647, -0.097], "G2": [0.1391, 0.1311, -1.0, -1.0], "G3": [0.1436, 0.1189, 0.1594, 0.2179], "G4": [0.0768, -0.0107, 0.0135, 0.1186], "H1": [0.1025, -1.0, -1.0, -1.0], "H2": [0.0367, -0.0875, -0.0985, -0.0104], "H3": [0.0558, 0.0782, 0.08, 0.138], "H4": [0.0691, -0.0461, -0.0293, 0.0475], "I1": [0.0449, -0.0293, -0.0089, 0.0722], "I2": [0.0026, -0.0021, 0.0148, 0.1048], "I3": [-0.0365, -0.0381, 0.0033, 0.0862], "I4": [0.0278, -0.0516, -0.0454, 0.0194]}, "BTW-9": {"A1": [0.0477, -0.0396, -0.0263, 0.0418, 0.0078], "A2": [-0.0011, -0.0021, -0.0155, 0.0455, 0.0166], "A3": [-0.0255, 0.0002, 0.0224, 0.0996, 0.0628], "A4": [0.055, -0.0392, -0.0129, 0.0792, 0.0641], "B1": [0.0478, -0.053, -0.0654, 0.0282, 0.0315], "B2": [0.0345, -0.0004, 0.0105, 0.0676, 0.0366], "B3": [0.09, 0.0732, 0.1207, 0.217, 0.2283], "B4": [0.0733, -0.0337, -0.0121, 0.0828, 0.0716], "C1": [0.0917, -0.0082, 0.0115, 0.1185, 0.1125], "C2": [0.1515, 0.1913, 0.2056, 0.2809, 0.2546], "C3": [0.1451, 0.0419, 0.1549, 0.2791, 0.4116], "C4": [0.1168, -1.0, -1.0, -1.0, -1.0], "D1": [0.16, 0.046, 0.0915, 0.0277, -0.0014], "D2": [0.1256, 0.1056, 0.1031, -1.0, -1.0], "D3": [0.1577, 0.2199, -1.0, -1.0, -1.0], "D4": [0.1488, 0.0488, -0.0815, 0.0129, -0.0142], "E1": [0.1628, 0.0543, 0.0843, -0.0083, -0.0581], "E2": [0.1369, 0.1212, 0.2072, -1.0, -1.0], "E3": [0.1042, 0.1207, 0.1935, 0.396, -1.0], "E4": [0.1022, 0.0056, 0.0274, 0.1289, -0.12], "F1": [0.1473, 0.051, 0.0781, 0.1805, -1.0], "F2": [0.1488, 0.1307, 0.1397, 0.2265, -0.0053], "F3": [0.1086, 0.122, 0.167, 0.2141, 0.4333], "F4": [0.1206, 0.0326, 0.0581, 0.1514, 0.0766], "G1": [0.0754, -0.0135, -0.1647, -0.097, -0.2141], "G2": [0.1391, 0.1311, -1.0, -1.0, -1.0], "G3": [0.1436, 0.1189, 0.1594, 0.2179, 0.2608], "G4": [0.0768, -0.0107, 0.0135, 0.1186, -0.0127], "H1": [0.1025, -1.0, -1.0, -1.0, -1.0], "H2": [0.0367, -0.0875, -0.0985, -0.0104, 0.0376], "H3": [0.0558, 0.0782, 0.08, 0.138, 0.1104], "H4": [0.0691, -0.0461, -0.0293, 0.0475, -0.0812], "I1": [0.0449, -0.0293, -0.0089, 0.0722, -0.0242], "I2": [0.0026, -0.0021, 0.0148, 0.1048, 0.1003], "I3": [-0.0365, -0.0381, 0.0033, 0.0862, 0.0794], "I4": [0.0278, -0.0516, -0.0454, 0.0194, -0.1051]}, "BTW-11": {"A1": [0.0477, -0.0396, -0.0263, 0.0418, 0.0078, 0.1335], "A2": [-0.0011, -0.0021, -0.0155, 0.0455, 0.0166, 0.1304], "A3": [-0.0255, 0.0002, 0.0224, 0.0996, 0.0628, 0.2054], "A4": [0.055, -0.0392, -0.0129, 0.0792, 0.0641, 0.2063], "B1": [0.0478, -0.053, -0.0654, 0.0282, 0.0315, 0.1429], "B2": [0.0345, -0.0004, 0.0105, 0.0676, 0.0366, 0.1877], "B3": [0.09, 0.0732, 0.1207, 0.217, 0.2283, 0.2853], "B4": [0.0733, -0.0337, -0.0121, 0.0828, 0.0716, 0.1786], "C1": [0.0917, -0.0082, 0.0115, 0.1185, 0.1125, 0.2404], "C2": [0.1515, 0.1913, 0.2056, 0.2809, 0.2546, 0.4051], "C3": [0.1451, 0.0419, 0.1549, 0.2791, 0.4116, 0.6922], "C4": [0.1168, -1.0, -1.0, -1.0, -1.0, -1.0], "D1": [0.16, 0.046, 0.0915, 0.0277, -0.0014, 0.1478], "D2": [0.1256, 0.1056, 0.1031, -1.0, -1.0, -1.0], "D3": [0.1577, 0.2199, -1.0, -1.0, -1.0, -1.0], "D4": [0.1488, 0.0488, -0.0815, 0.0129, -0.0142, 0.1126], "E1": [0.1628, 0.0543, 0.0843, -0.0083, -0.0581, 0.1517], "E2": [0.1369, 0.1212, 0.2072, -1.0, -1.0, -1.0], "E3": [0.1042, 0.1207, 0.1935, 0.396, -1.0, -1.0], "E4": [0.1022, 0.0056, 0.0274, 0.1289, -0.12, 0.0546], "F1": [0.1473, 0.051, 0.0781, 0.1805, -1.0, -1.0], "F2": [0.1488, 0.1307, 0.1397, 0.2265, -0.0053, 0.0595], "F3": [0.1086, 0.122, 0.167, 0.2141, 0.4333, -1.0], "F4": [0.1206, 0.0326, 0.0581, 0.1514, 0.0766, 0.0749], "G1": [0.0754, -0.0135, -0.1647, -0.097, -0.2141, 0.0509], "G2": [0.1391, 0.1311, -1.0, -1.0, -1.0, -1.0], "G3": [0.1436, 0.1189, 0.1594, 0.2179, 0.2608, -1.0], "G4": [0.0768, -0.0107, 0.0135, 0.1186, -0.0127, 0.0876], "H1": [0.1025, -1.0, -1.0, -1.0, -1.0, -1.0], "H2": [0.0367, -0.0875, -0.0985, -0.0104, 0.0376, 0.1284], "H3": [0.0558, 0.0782, 0.08, 0.138, 0.1104, 0.2673], "H4": [0.0691, -0.0461, -0.0293, 0.0475, -0.0812, 0.184], "I1": [0.0449, -0.0293, -0.0089, 0.0722, -0.0242, 0.173], "I2": [0.0026, -0.0021, 0.0148, 0.1048, 0.1003, 0.2707], "I3": [-0.0365, -0.0381, 0.0033, 0.0862, 0.0794, 0.2108], "I4": [0.0278, -0.0516, -0.0454, 0.0194, -0.1051, 0.1162]}}}, {"GameNum": 1, "goes-first": "X", "winner": "X", "max_moves": 11, "x-moves": ["C4", "D3", "E2", "E3", "F3", "C3"], "o-moves": ["H1", "G2", "D2", "F1", "G3"], "win_sequence": ["C3", "D3", "E3", "F3"], "game_summary": "wins horizontally on move 11", "BTW-arrays": {"BTW-1": ["E1", "D1", "D3", "C2", "F2", "D4", "F1", "C3", "G3", "G2", "E2", "D2", "F4", "C4", "F3", "E3", "H1", "E4", "C1", "B3", "G4", "G1", "B4", "H4", "H3", "A4", "B1", "A1", "I1", "H2", "B2", "I4", "I2", "A2", "A3", "I3"], "BTW-3": ["D3", "C2", "G2", "F2", "F3", "E2", "E3", "G3", "D2", "H3", "B3", "E1", "F1", "D4", "D1", "C3", "F4", "E4", "A3", "B2", "A2", "I2", "C1", "G4", "G1", "I1", "B4", "I3", "A4", "A1", "H4", "I4", "B1", "H2", "H1", "C4"], "BTW-5": ["E2", "C2", "E3", "F3", "G3", "C3", "F2", "B3", "D2", "D1", "E1", "H3", "F1", "F4", "E4", "A3", "I2", "G4", "C1", "B2", "I3", "I1", "B4", "A4", "A2", "A1", "H4", "I4", "B1", "D4", "H2", "G1", "H1", "G2", "D3", "C4"], "BTW-7": ["E3", "C2", "C3", "F2", "G3", "B3", "F3", "F1", "F4", "H3", "E4", "G4", "C1", "I2", "A3", "I3", "B4", "A4", "I1", "B2", "H4", "A2", "A1", "B1", "D1", "I4", "D4", "E1", "H2", "G1", "H1", "D2", "E2", "G2", "D3", "C4"], "BTW-9": ["F3", "C3", "G3", "C2", "B3", "C1", "H3", "I2", "I3", "F4", "B4", "A4", "A3", "H2", "B2", "B1", "A2", "A1", "D1", "F2", "G4", "D4", "I1", "E1", "H4", "I4", "E4", "G1", "F1", "H1", "D2", "E2", "G2", "D3", "E3", "C4"], "BTW-11": ["C3", "C2", "B3", "I2", "H3", "C1", "I3", "A4", "A3", "B2", "H4", "B4", "I1", "E1", "D1", "B1", "A1", "A2", "H2", "I4", "D4", "G4", "F4", "F2", "E4", "G1", "F1", "H1", "D2", "E2", "G2", "D3", "E3", "F3", "G3", "C4"]}, "win_values": {"BTW-1": {"A1": [0.0477], "A2": [-0.0011], "A3": [-0.0255], "A4": [0.055], "B1": [0.0478], "B2": [0.0345], "B3": [0.09], "B4": [0.0733], "C1": [0.0917], "C2": [0.1515], "C3": [0.1451], "C4": [0.1168], "D1": [0.16], "D2": [0.1256], "D3": [0.1577], "D4": [0.1488], "E1": [0.1628], "E2": [0.1369], "E3": [0.1042], "E4": [0.1022], "F1": [0.1473], "F2": [0.1488], "F3": [0.1086], "F4": [0.1206], "G1": [0.0754], "G2": [0.1391], "G3": [0.1436], "G4": [0.0768], "H1": [0.1025], "H2": [0.0367], "H3": [0.0558], "H4": [0.0691], "I1": [0.0449], "I2": [0.0026], "I3": [-0.0365], "I4": [0.0278]}, "BTW-3": {"A1": [0.0477, -0.0396], "A2": [-0.0011, -0.0021], "A3": [-0.0255, 0.0002], "A4": [0.055, -0.0392], "B1": [0.0478, -0.053], "B2": [0.0345, -0.0004], "B3": [0.09, 0.0732], "B4": [0.0733, -0.0337], "C1": [0.0917, -0.0082], "C2": [0.1515, 0.1913], "C3": [0.1451, 0.0419], "C4": [0.1168, -1.0], "D1": [0.16, 0.046], "D2": [0.1256, 0.1056], "D3": [0.1577, 0.2199], "D4": [0.1488, 0.0488], "E1": [0.1628, 0.0543], "E2": [0.1369, 0.1212], "E3": [0.1042, 0.1207], "E4": [0.1022, 0.0056], "F1": [0.1473, 0.051], "F2": [0.1488, 0.1307], "F3": [0.1086, 0.122], "F4": [0.1206, 0.0326], "G1": [0.0754, -0.0135], "G2": [0.1391, 0.1311], "G3": [0.1436, 0.1189], "G4": [0.0768, -0.0107], "H1": [0.1025, -1.0], "H2": [0.0367, -0.0875], "H3": [0.0558, 0.0782], "H4": [0.0691, -0.0461], "I1": [0.0449, -0.0293], "I2": [0.0026, -0.0021], "I3": [-0.0365, -0.0381], "I4": [0.0278, -0.0516]}, "BTW-5": {"A1": [0.0477, -0.0396, -0.0263], "A2": [-0.0011, -0.0021, -0.0155], "A3": [-0.0255, 0.0002, 0.0224], "A4": [0.055, -0.0392, -0.0129], "B1": [0.0478, -0.053, -0.0654], "B2": [0.0345, -0.0004, 0.0105], "B3": [0.09, 0.0732, 0.1207], "B4": [0.0733, -0.0337, -0.0121], "C1": [0.0917, -0.0082, 0.0115], "C2": [0.1515, 0.1913, 0.2056], "C3": [0.1451, 0.0419, 0.1549], "C4": [0.1168, -1.0, -1.0], "D1": [0.16, 0.046, 0.0915], "D2": [0.1256, 0.1056, 0.1031], "D3": [0.1577, 0.2199, -1.0], "D4": [0.1488, 0.0488, -0.0815], "E1": [0.1628, 0.0543, 0.0843], "E2": [0.1369, 0.1212, 0.2072], "E3": [0.1042, 0.1207, 0.1935], "E4": [0.1022, 0.0056, 0.0274], "F1": [0.1473, 0.051, 0.0781], "F2": [0.1488, 0.1307, 0.1397], "F3": [0.1086, 0.122, 0.167], "F4": [0.1206, 0.0326, 0.0581], "G1": [0.0754, -0.0135, -0.1647], "G2": [0.1391, 0.1311, -1.0], "G3": [0.1436, 0.1189, 0.1594], "G4": [0.0768, -0.0107, 0.0135], "H1": [0.1025, -1.0, -1.0], "H2": [0.0367, -0.0875, -0.0985], "H3": [0.0558, 0.0782, 0.08], "H4": [0.0691, -0.0461, -0.0293], "I1": [0.0449, -0.0293, -0.0089], "I2": [0.0026, -0.0021, 0.0148], "I3": [-0.0365, -0.0381, 0.0033], "I4": [0.0278, -0.0516, -0.0454]}, "BTW-7": {"A1": [0.0477, -0.0396, -0.0263, 0.0418], "A2": [-0.0011, -0.0021, -0.0155, 0.0455], "A3": [-0.0255, 0.0002, 0.0224, 0.0996], "A4": [0.055, -0.0392, -0.0129, 0.0792], "B1": [0.0478, -0.053, -0.0654, 0.0282], "B2": [0.0345, -0.0004, 0.0105, 0.0676], "B3": [0.09, 0.0732, 0.1207, 0.217], "B4": [0.0733, -0.0337, -0.0121, 0.0828], "C1": [0.0917, -0.0082, 0.0115, 0.1185], "C2": [0.1515, 0.1913, 0.2056, 0.2809], "C3": [0.1451, 0.0419, 0.1549, 0.2791], "C4": [0.1168, -1.0, -1.0, -1.0], "D1": [0.16, 0.046, 0.0915, 0.0277], "D2": [0.1256, 0.1056, 0.1031, -1.0], "D3": [0.1577, 0.2199, -1.0, -1.0], "D4": [0.1488, 0.0488, -0.0815, 0.0129], "E1": [0.1628, 0.0543, 0.0843, -0.0083], "E2": [0.1369, 0.1212, 0.2072, -1.0], "E3": [0.1042, 0.1207, 0.1935, 0.396], "E4": [0.1022, 0.0056, 0.0274, 0.1289], "F1": [0.1473, 0.051, 0.0781, 0.1805], "F2": [0.1488, 0.1307, 0.1397, 0.2265], "F3": [0.1086, 0.122, 0.167, 0.2141], "F4": [0.1206, 0.0326, 0.0581, 0.1514], "G1": [0.0754, -0.0135, -0.1647, -0.097], "G2": [0.1391, 0.1311, -1.0, -1.0], "G3": [0.1436, 0.1189, 0.1594, 0.2179], "G4": [0.0768, -0.0107, 0.0135, 0.1186], "H1": [0.1025, -1.0, -1.0, -1.0], "H2": [0.0367, -0.0875, -0.0985, -0.0104], "H3": [0.0558, 0.0782, 0.08, 0.138], "H4": [0.0691, -0.0461, -0.0293, 0.0475], "I1": [0.0449, -0.0293, -0.0089, 0.0722], "I2": [0.0026, -0.0021, 0.0148, 0.1048], "I3": [-0.0365, -0.0381, 0.0033, 0.0862], "I4": [0.0278, -0.0516, -0.0454, 0.0194]}, "BTW-9": {"A1": [0.0477, -0.0396, -0.0263, 0.0418, 0.0078], "A2": [-0.0011, -0.0021, -0.0155, 0.0455, 0.0166], "A3": [-0.0255, 0.0002, 0.0224, 0.0996, 0.0628], "A4": [0.055, -0.0392, -0.0129, 0.0792, 0.0641], "B1": [0.0478, -0.053, -0.0654, 0.0282, 0.0315], "B2": [0.0345, -0.0004, 0.0105, 0.0676, 0.0366], "B3": [0.09, 0.0732, 0.1207, 0.217, 0.2283], "B4": [0.0733, -0.0337, -0.0121, 0.0828, 0.0716], "C1": [0.0917, -0.0082, 0.0115, 0.1185, 0.1125], "C2": [0.1515, 0.1913, 0.2056, 0.2809, 0.2546], "C3": [0.1451, 0.0419, 0.1549, 0.2791, 0.4116], "C4": [0.1168, -1.0, -1.0, -1.0, -1.0], "D1": [0.16, 0.046, 0.0915, 0.0277, -0.0014], "D2": [0.1256, 0.1056, 0.1031, -1.0, -1.0], "D3": [0.1577, 0.2199, -1.0, -1.0, -1.0], "D4": [0.1488, 0.0488, -0.0815, 0.0129, -0.0142], "E1": [0.1628, 0.0543, 0.0843, -0.0083, -0.0581], "E2": [0.1369, 0.1212, 0.2072, -1.0, -1.0], "E3": [0.1042, 0.1207, 0.1935, 0.396, -1.0], "E4": [0.1022, 0.0056, 0.0274, 0.1289, -0.12], "F1": [0.1473, 0.051, 0.0781, 0.1805, -1.0], "F2": [0.1488, 0.1307, 0.1397, 0.2265, -0.0053], "F3": [0.1086, 0.122, 0.167, 0.2141, 0.4333], "F4": [0.1206, 0.0326, 0.0581, 0.1514, 0.0766], "G1": [0.0754, -0.0135, -0.1647, -0.097, -0.2141], "G2": [0.1391, 0.1311, -1.0, -1.0, -1.0], "G3": [0.1436, 0.1189, 0.1594, 0.2179, 0.2608], "G4": [0.0768, -0.0107, 0.0135, 0.1186, -0.0127], "H1": [0.1025, -1.0, -1.0, -1.0, -1.0], "H2": [0.0367, -0.0875, -0.0985, -0.0104, 0.0376], "H3": [0.0558, 0.0782, 0.08, 0.138, 0.1104], "H4": [0.0691, -0.0461, -0.0293, 0.0475, -0.0812], "I1": [0.0449, -0.0293, -0.0089, 0.0722, -0.0242], "I2": [0.0026, -0.0021, 0.0148, 0.1048, 0.1003], "I3": [-0.0365, -0.0381, 0.0033, 0.0862, 0.0794], "I4": [0.0278, -0.0516, -0.0454, 0.0194, -0.1051]}, "BTW-11": {"A1": [0.0477, -0.0396, -0.0263, 0.0418, 0.0078, 0.1335], "A2": [-0.0011, -0.0021, -0.0155, 0.0455, 0.0166, 0.1304], "A3": [-0.0255, 0.0002, 0.0224, 0.0996, 0.0628, 0.2054], "A4": [0.055, -0.0392, -0.0129, 0.0792, 0.0641, 0.2063], "B1": [0.0478, -0.053, -0.0654, 0.0282, 0.0315, 0.1429], "B2": [0.0345, -0.0004, 0.0105, 0.0676, 0.0366, 0.1877], "B3": [0.09, 0.0732, 0.1207, 0.217, 0.2283, 0.2853], "B4": [0.0733, -0.0337, -0.0121, 0.0828, 0.0716, 0.1786], "C1": [0.0917, -0.0082, 0.0115, 0.1185, 0.1125, 0.2404], "C2": [0.1515, 0.1913, 0.2056, 0.2809, 0.2546, 0.4051], "C3": [0.1451, 0.0419, 0.1549, 0.2791, 0.4116, 0.6922], "C4": [0.1168, -1.0, -1.0, -1.0, -1.0, -1.0], "D1": [0.16, 0.046, 0.0915, 0.0277, -0.0014, 0.1478], "D2": [0.1256, 0.1056, 0.1031, -1.0, -1.0, -1.0], "D3": [0.1577, 0.2199, -1.0, -1.0, -1.0, -1.0], "D4": [0.1488, 0.0488, -0.0815, 0.0129, -0.0142, 0.1126], "E1": [0.1628, 0.0543, 0.0843, -0.0083, -0.0581, 0.1517], "E2": [0.1369, 0.1212, 0.2072, -1.0, -1.0, -1.0], "E3": [0.1042, 0.1207, 0.1935, 0.396, -1.0, -1.0], "E4": [0.1022, 0.0056, 0.0274, 0.1289, -0.12, 0.0546], "F1": [0.1473, 0.051, 0.0781, 0.1805, -1.0, -1.0], "F2": [0.1488, 0.1307, 0.1397, 0.2265, -0.0053, 0.0595], "F3": [0.1086, 0.122, 0.167, 0.2141, 0.4333, -1.0], "F4": [0.1206, 0.0326, 0.0581, 0.1514, 0.0766, 0.0749], "G1": [0.0754, -0.0135, -0.1647, -0.097, -0.2141, 0.0509], "G2": [0.1391, 0.1311, -1.0, -1.0, -1.0, -1.0], "G3": [0.1436, 0.1189, 0.1594, 0.2179, 0.2608, -1.0], "G4": [0.0768, -0.0107, 0.0135, 0.1186, -0.0127, 0.0876], "H1": [0.1025, -1.0, -1.0, -1.0, -1.0, -1.0], "H2": [0.0367, -0.0875, -0.0985, -0.0104, 0.0376, 0.1284], "H3": [0.0558, 0.0782, 0.08, 0.138, 0.1104, 0.2673], "H4": [0.0691, -0.0461, -0.0293, 0.0475, -0.0812, 0.184], "I1": [0.0449, -0.0293, -0.0089, 0.0722, -0.0242, 0.173], "I2": [0.0026, -0.0021, 0.0148, 0.1048, 0.1003, 0.2707], "I3": [-0.0365, -0.0381, 0.0033, 0.0862, 0.0794, 0.2108], "I4": [0.0278, -0.0516, -0.0454, 0.0194, -0.1051, 0.1162]}}}, {"GameNum": 2, "goes-first": "O", "winner": "O", "max_moves": 9, "x-moves": ["D2", "C3", "D4", "E1"], "o-moves": ["C4", "C2", "F1", "D3", "E2"], "win_sequence": ["C4", "D3", "E2", "F1"], "game_summary": "wins diagonally on move 9", "BTW-arrays": {"BTW-2": ["D3", "C2", "D2", "H1", "F1", "G2", "E2", "C3", "G3", "F2", "F4", "G4", "G1", "H4", "F3", "B3", "I1", "E3", "E1", "I4", "H3", "D4", "D1", "H2", "E4", "B2", "A2", "I2", "A3", "A1", "I3", "A4", "C1", "B4", "B1", "C4"], "BTW-4": ["C3", "G2", "H1", "F1", "F2", "F4", "G4", "G3", "G1", "H4", "D4", "E1", "I1", "E3", "D3", "I4", "B3", "E2", "H3", "E4", "F3", "H2", "A4", "A1", "A2", "B4", "I2", "A3", "B1", "I3", "D1", "C1", "B2", "C2", "D2", "C4"], "BTW-6": ["D4", "E3", "B4", "E1", "G2", "B3", "B1", "F2", "A4", "C1", "A1", "F3", "G3", "D1", "H2", "I1", "H3", "A2", "E2", "H1", "F4", "E4", "I4", "G1", "D3", "H4", "I3", "I2", "G4", "A3", "B2", "F1", "C2", "D2", "C3", "C4"], "BTW-8": ["E1", "E3", "D1", "G2", "C1", "B4", "F2", "A4", "E2", "I1", "B1", "A2", "A1", "H2", "E4", "I3", "H4", "H1", "B3", "I4", "H3", "G3", "B2", "F3", "F4", "G1", "I2", "A3", "G4", "F1", "C2", "D2", "C3", "D3", "C4", "D4"]}, "win_values": {"BTW-2": {"A1": [-0.1758], "A2": [-0.1435], "A3": [-0.1664], "A4": [-0.1941], "B1": [-0.2263], "B2": [-0.1298], "B3": [-0.0545], "B4": [-0.2227], "C1": [-0.2017], "C2": [0.0206], "C3": [-0.0146], "C4": [-1.0], "D1": [-0.1199], "D2": [-0.0027], "D3": [0.0328], "D4": [-0.1192], "E1": [-0.0665], "E2": [-0.0125], "E3": [-0.0644], "E4": [-0.1279], "F1": [-0.0075], "F2": [-0.0161], "F3": [-0.0544], "F4": [-0.0215], "G1": [-0.0291], "G2": [-0.009], "G3": [-0.0146], "G4": [-0.0244], "H1": [-0.0047], "H2": [-0.1274], "H3": [-0.0842], "H4": [-0.0407], "I1": [-0.0641], "I2": [-0.1564], "I3": [-0.1821], "I4": [-0.0745]}, "BTW-4": {"A1": [-0.1758, -0.0901], "A2": [-0.1435, -0.1127], "A3": [-0.1664, -0.1374], "A4": [-0.1941, -0.0861], "B1": [-0.2263, -0.1432], "B2": [-0.1298, -0.2552], "B3": [-0.0545, -0.0441], "B4": [-0.2227, -0.1143], "C1": [-0.2017, -0.2437], "C2": [0.0206, -1.0], "C3": [-0.0146, 0.0931], "C4": [-1.0, -1.0], "D1": [-0.1199, -0.2128], "D2": [-0.0027, -1.0], "D3": [0.0328, -0.0373], "D4": [-0.1192, 0.0023], "E1": [-0.0665, -0.0029], "E2": [-0.0125, -0.045], "E3": [-0.0644, -0.0343], "E4": [-0.1279, -0.0569], "F1": [-0.0075, 0.0484], "F2": [-0.0161, 0.0439], "F3": [-0.0544, -0.0674], "F4": [-0.0215, 0.0253], "G1": [-0.0291, 0.0084], "G2": [-0.009, 0.0573], "G3": [-0.0146, 0.009], "G4": [-0.0244, 0.0141], "H1": [-0.0047, 0.0514], "H2": [-0.1274, -0.077], "H3": [-0.0842, -0.0497], "H4": [-0.0407, 0.0037], "I1": [-0.0641, -0.0232], "I2": [-0.1564, -0.1296], "I3": [-0.1821, -0.1679], "I4": [-0.0745, -0.0385]}, "BTW-6": {"A1": [-0.1758, -0.0901, 0.0896], "A2": [-0.1435, -0.1127, 0.0506], "A3": [-0.1664, -0.1374, -0.0791], "A4": [-0.1941, -0.0861, 0.1064], "B1": [-0.2263, -0.1432, 0.1343], "B2": [-0.1298, -0.2552, -0.1248], "B3": [-0.0545, -0.0441, 0.1772], "B4": [-0.2227, -0.1143, 0.2131], "C1": [-0.2017, -0.2437, 0.1034], "C2": [0.0206, -1.0, -1.0], "C3": [-0.0146, 0.0931, -1.0], "C4": [-1.0, -1.0, -1.0], "D1": [-0.1199, -0.2128, 0.0806], "D2": [-0.0027, -1.0, -1.0], "D3": [0.0328, -0.0373, -0.0361], "D4": [-0.1192, 0.0023, 0.2971], "E1": [-0.0665, -0.0029, 0.2123], "E2": [-0.0125, -0.045, 0.0099], "E3": [-0.0644, -0.0343, 0.2178], "E4": [-0.1279, -0.0569, -0.0114], "F1": [-0.0075, 0.0484, -1.0], "F2": [-0.0161, 0.0439, 0.122], "F3": [-0.0544, -0.0674, 0.0846], "F4": [-0.0215, 0.0253, -0.0075], "G1": [-0.0291, 0.0084, -0.0346], "G2": [-0.009, 0.0573, 0.2057], "G3": [-0.0146, 0.009, 0.0836], "G4": [-0.0244, 0.0141, -0.0639], "H1": [-0.0047, 0.0514, -0.0036], "H2": [-0.1274, -0.077, 0.0751], "H3": [-0.0842, -0.0497, 0.0521], "H4": [-0.0407, 0.0037, -0.0467], "I1": [-0.0641, -0.0232, 0.0621], "I2": [-0.1564, -0.1296, -0.0635], "I3": [-0.1821, -0.1679, -0.0521], "I4": [-0.0745, -0.0385, -0.0224]}, "BTW-8": {"A1": [-0.1758, -0.0901, 0.0896, -0.1056], "A2": [-0.1435, -0.1127, 0.0506, -0.0897], "A3": [-0.1664, -0.1374, -0.0791, -0.3773], "A4": [-0.1941, -0.0861, 0.1064, 0.0122], "B1": [-0.2263, -0.1432, 0.1343, -0.0353], "B2": [-0.1298, -0.2552, -0.1248, -0.2323], "B3": [-0.0545, -0.0441, 0.1772, -0.1708], "B4": [-0.2227, -0.1143, 0.2131, 0.0552], "C1": [-0.2017, -0.2437, 0.1034, 0.0609], "C2": [0.0206, -1.0, -1.0, -1.0], "C3": [-0.0146, 0.0931, -1.0, -1.0], "C4": [-1.0, -1.0, -1.0, -1.0], "D1": [-0.1199, -0.2128, 0.0806, 0.0815], "D2": [-0.0027, -1.0, -1.0, -1.0], "D3": [0.0328, -0.0373, -0.0361, -1.0], "D4": [-0.1192, 0.0023, 0.2971, -1.0], "E1": [-0.0665, -0.0029, 0.2123, 0.1693], "E2": [-0.0125, -0.045, 0.0099, -0.0029], "E3": [-0.0644, -0.0343, 0.2178, 0.1337], "E4": [-0.1279, -0.0569, -0.0114, -0.1558], "F1": [-0.0075, 0.0484, -1.0, -1.0], "F2": [-0.0161, 0.0439, 0.122, 0.0506], "F3": [-0.0544, -0.0674, 0.0846, -0.2481], "F4": [-0.0215, 0.0253, -0.0075, -0.2547], "G1": [-0.0291, 0.0084, -0.0346, -0.2652], "G2": [-0.009, 0.0573, 0.2057, 0.0803], "G3": [-0.0146, 0.009, 0.0836, -0.2193], "G4": [-0.0244, 0.0141, -0.0639, -0.4628], "H1": [-0.0047, 0.0514, -0.0036, -0.17], "H2": [-0.1274, -0.077, 0.0751, -0.1325], "H3": [-0.0842, -0.0497, 0.0521, -0.2173], "H4": [-0.0407, 0.0037, -0.0467, -0.1657], "I1": [-0.0641, -0.0232, 0.0621, -0.01], "I2": [-0.1564, -0.1296, -0.0635, -0.3216], "I3": [-0.1821, -0.1679, -0.0521, -0.1604], "I4": [-0.0745, -0.0385, -0.0224, -0.2038]}}}, {"GameNum": 3, "goes-first": "X", "winner": "X", "max_moves": 13, "x-moves": ["D4", "C3", "D3", "C2", "B2", "A2", "D2"], "o-moves": ["D1", "B4", "B3", "I1", "F1", "H1"], "win_sequence": ["A2", "B2", "C2", "D2"], "game_summary": "wins horizontally on move 13", "BTW-arrays": {"BTW-1": ["E1", "D1", "D3", "C2", "F2", "D4", "F1", "C3", "G3", "G2", "E2", "D2", "F4", "C4", "F3", "E3", "H1", "E4", "C1", "B3", "G4", "G1", "B4", "H4", "H3", "A4", "B1", "A1", "I1", "H2", "B2", "I4", "I2", "A2", "A3", "I3"], "BTW-3": ["C3", "D3", "F2", "C2", "F3", "E2", "E3", "G3", "G2", "H1", "F1", "G4", "F4", "B3", "G1", "H4", "E1", "D2", "H3", "B2", "I4", "I1", "H2", "I2", "E4", "A2", "A3", "I3", "A1", "C4", "A4", "C1", "B4", "B1", "D1", "D4"], "BTW-5": ["D3", "C2", "F2", "G2", "E3", "F3", "E2", "B2", "G3", "G4", "B3", "G1", "H1", "F1", "F4", "H3", "A3", "I4", "A2", "D2", "H4", "H2", "I1", "I2", "E1", "I3", "E4", "A1", "C1", "A4", "B1", "C4", "D1", "C3", "B4", "D4"], "BTW-7": ["C2", "B2", "E2", "F2", "E1", "G2", "F1", "F3", "H1", "A2", "I1", "E3", "D2", "G1", "E4", "F4", "I3", "A3", "H4", "I4", "A4", "H2", "B1", "G3", "I2", "H3", "C1", "A1", "G4", "C4", "D1", "B3", "C3", "D3", "B4", "D4"], "BTW-9": ["B2", "F2", "G2", "E1", "E2", "F3", "D2", "E4", "F1", "B1", "A4", "E3", "A2", "H2", "I3", "C4", "H1", "G3", "A3", "F4", "G1", "H3", "A1", "I2", "I4", "H4", "C1", "G4", "D1", "I1", "C2", "B3", "C3", "D3", "B4", "D4"], "BTW-11": ["A2", "D2", "G2", "E2", "E1", "E3", "F2", "F3", "E4", "A4", "H2", "I3", "C4", "G3", "A3", "A1", "I2", "H1", "H3", "B1", "F4", "G1", "I4", "C1", "H4", "G4", "D1", "F1", "I1", "B2", "C2", "B3", "C3", "D3", "B4", "D4"], "BTW-13": ["D2", "G2", "E3", "E2", "E1", "A4", "I3", "A3", "C4", "H3", "F3", "E4", "G3", "F2", "I2", "B1", "H2", "C1", "A1", "F4", "G1", "I4", "H4", "G4", "D1", "F1", "H1", "I1", "A2", "B2", "C2", "B3", "C3", "D3", "B4", "D4"]}, "win_values": {"BTW-1": {"A1": [0.0477], "A2": [-0.0011], "A3": [-0.0255], "A4": [0.055], "B1": [0.0478], "B2": [0.0345], "B3": [0.09], "B4": [0.0733], "C1": [0.0917], "C2": [0.1515], "C3": [0.1451], "C4": [0.1168], "D1": [0.16], "D2": [0.1256], "D3": [0.1577], "D4": [0.1488], "E1": [0.1628], "E2": [0.1369], "E3": [0.1042], "E4": [0.1022], "F1": [0.1473], "F2": [0.1488], "F3": [0.1086], "F4": [0.1206], "G1": [0.0754], "G2": [0.1391], "G3": [0.1436], "G4": [0.0768], "H1": [0.1025], "H2": [0.0367], "H3": [0.0558], "H4": [0.0691], "I1": [0.0449], "I2": [0.0026], "I3": [-0.0365], "I4": [0.0278]}, "BTW-3": {"A1": [0.0477, -0.0684], "A2": [-0.0011, 0.0121], "A3": [-0.0255, 0.0068], "A4": [0.055, -0.0816], "B1": [0.0478, -0.1094], "B2": [0.0345, 0.0481], "B3": [0.09, 0.101], "B4": [0.0733, -0.1048], "C1": [0.0917, -0.0875], "C2": [0.1515, 0.1485], "C3": [0.1451, 0.1999], "C4": [0.1168, -0.0734], "D1": [0.16, -1.0], "D2": [0.1256, 0.0582], "D3": [0.1577, 0.1946], "D4": [0.1488, -1.0], "E1": [0.1628, 0.0587], "E2": [0.1369, 0.1413], "E3": [0.1042, 0.1407], "E4": [0.1022, 0.0123], "F1": [0.1473, 0.1096], "F2": [0.1488, 0.1548], "F3": [0.1086, 0.1468], "F4": [0.1206, 0.1087], "G1": [0.0754, 0.0988], "G2": [0.1391, 0.1366], "G3": [0.1436, 0.1398], "G4": [0.0768, 0.109], "H1": [0.1025, 0.1149], "H2": [0.0367, 0.0351], "H3": [0.0558, 0.0527], "H4": [0.0691, 0.0658], "I1": [0.0449, 0.0419], "I2": [0.0026, 0.0142], "I3": [-0.0365, -0.0199], "I4": [0.0278, 0.0462]}, "BTW-5": {"A1": [0.0477, -0.0684, -0.0455], "A2": [-0.0011, 0.0121, 0.1386], "A3": [-0.0255, 0.0068, 0.1518], "A4": [0.055, -0.0816, -0.0636], "B1": [0.0478, -0.1094, -0.0851], "B2": [0.0345, 0.0481, 0.2169], "B3": [0.09, 0.101, 0.1989], "B4": [0.0733, -0.1048, -1.0], "C1": [0.0917, -0.0875, -0.0604], "C2": [0.1515, 0.1485, 0.2816], "C3": [0.1451, 0.1999, -1.0], "C4": [0.1168, -0.0734, -0.2293], "D1": [0.16, -1.0, -1.0], "D2": [0.1256, 0.0582, 0.1343], "D3": [0.1577, 0.1946, 0.3642], "D4": [0.1488, -1.0, -1.0], "E1": [0.1628, 0.0587, 0.1104], "E2": [0.1369, 0.1413, 0.2213], "E3": [0.1042, 0.1407, 0.2389], "E4": [0.1022, 0.0123, 0.0458], "F1": [0.1473, 0.1096, 0.1944], "F2": [0.1488, 0.1548, 0.2447], "F3": [0.1086, 0.1468, 0.2375], "F4": [0.1206, 0.1087, 0.1783], "G1": [0.0754, 0.0988, 0.1977], "G2": [0.1391, 0.1366, 0.2413], "G3": [0.1436, 0.1398, 0.2113], "G4": [0.0768, 0.109, 0.2087], "H1": [0.1025, 0.1149, 0.1958], "H2": [0.0367, 0.0351, 0.1306], "H3": [0.0558, 0.0527, 0.1712], "H4": [0.0691, 0.0658, 0.1308], "I1": [0.0449, 0.0419, 0.1248], "I2": [0.0026, 0.0142, 0.1133], "I3": [-0.0365, -0.0199, 0.081], "I4": [0.0278, 0.0462, 0.1398]}, "BTW-7": {"A1": [0.0477, -0.0684, -0.0455, -0.039], "A2": [-0.0011, 0.0121, 0.1386, 0.1781], "A3": [-0.0255, 0.0068, 0.1518, 0.1032], "A4": [0.055, -0.0816, -0.0636, 0.0732], "B1": [0.0478, -0.1094, -0.0851, 0.0622], "B2": [0.0345, 0.0481, 0.2169, 0.2836], "B3": [0.09, 0.101, 0.1989, -1.0], "B4": [0.0733, -0.1048, -1.0, -1.0], "C1": [0.0917, -0.0875, -0.0604, -0.0071], "C2": [0.1515, 0.1485, 0.2816, 0.3332], "C3": [0.1451, 0.1999, -1.0, -1.0], "C4": [0.1168, -0.0734, -0.2293, -0.0974], "D1": [0.16, -1.0, -1.0, -1.0], "D2": [0.1256, 0.0582, 0.1343, 0.1385], "D3": [0.1577, 0.1946, 0.3642, -1.0], "D4": [0.1488, -1.0, -1.0, -1.0], "E1": [0.1628, 0.0587, 0.1104, 0.2428], "E2": [0.1369, 0.1413, 0.2213, 0.2587], "E3": [0.1042, 0.1407, 0.2389, 0.1725], "E4": [0.1022, 0.0123, 0.0458, 0.1179], "F1": [0.1473, 0.1096, 0.1944, 0.2108], "F2": [0.1488, 0.1548, 0.2447, 0.2561], "F3": [0.1086, 0.1468, 0.2375, 0.1791], "F4": [0.1206, 0.1087, 0.1783, 0.1108], "G1": [0.0754, 0.0988, 0.1977, 0.1218], "G2": [0.1391, 0.1366, 0.2413, 0.2126], "G3": [0.1436, 0.1398, 0.2113, 0.0485], "G4": [0.0768, 0.109, 0.2087, -0.0582], "H1": [0.1025, 0.1149, 0.1958, 0.1781], "H2": [0.0367, 0.0351, 0.1306, 0.068], "H3": [0.0558, 0.0527, 0.1712, 0.0149], "H4": [0.0691, 0.0658, 0.1308, 0.0739], "I1": [0.0449, 0.0419, 0.1248, 0.1741], "I2": [0.0026, 0.0142, 0.1133, 0.0229], "I3": [-0.0365, -0.0199, 0.081, 0.1049], "I4": [0.0278, 0.0462, 0.1398, 0.0738]}, "BTW-9": {"A1": [0.0477, -0.0684, -0.0455, -0.039, 0.1857], "A2": [-0.0011, 0.0121, 0.1386, 0.1781, 0.2957], "A3": [-0.0255, 0.0068, 0.1518, 0.1032, 0.2428], "A4": [0.055, -0.0816, -0.0636, 0.0732, 0.3203], "B1": [0.0478, -0.1094, -0.0851, 0.0622, 0.3338], "B2": [0.0345, 0.0481, 0.2169, 0.2836, 0.5108], "B3": [0.09, 0.101, 0.1989, -1.0, -1.0], "B4": [0.0733, -0.1048, -1.0, -1.0, -1.0], "C1": [0.0917, -0.0875, -0.0604, -0.0071, 0.1042], "C2": [0.1515, 0.1485, 0.2816, 0.3332, -1.0], "C3": [0.1451, 0.1999, -1.0, -1.0, -1.0], "C4": [0.1168, -0.0734, -0.2293, -0.0974, 0.2709], "D1": [0.16, -1.0, -1.0, -1.0, -1.0], "D2": [0.1256, 0.0582, 0.1343, 0.1385, 0.3573], "D3": [0.1577, 0.1946, 0.3642, -1.0, -1.0], "D4": [0.1488, -1.0, -1.0, -1.0, -1.0], "E1": [0.1628, 0.0587, 0.1104, 0.2428, 0.4363], "E2": [0.1369, 0.1413, 0.2213, 0.2587, 0.4034], "E3": [0.1042, 0.1407, 0.2389, 0.1725, 0.3125], "E4": [0.1022, 0.0123, 0.0458, 0.1179, 0.3387], "F1": [0.1473, 0.1096, 0.1944, 0.2108, 0.3356], "F2": [0.1488, 0.1548, 0.2447, 0.2561, 0.4791], "F3": [0.1086, 0.1468, 0.2375, 0.1791, 0.3757], "F4": [0.1206, 0.1087, 0.1783, 0.1108, 0.2382], "G1": [0.0754, 0.0988, 0.1977, 0.1218, 0.2157], "G2": [0.1391, 0.1366, 0.2413, 0.2126, 0.4446], "G3": [0.1436, 0.1398, 0.2113, 0.0485, 0.254], "G4": [0.0768, 0.109, 0.2087, -0.0582, 0.0094], "H1": [0.1025, 0.1149, 0.1958, 0.1781, 0.2701], "H2": [0.0367, 0.0351, 0.1306, 0.068, 0.2843], "H3": [0.0558, 0.0527, 0.1712, 0.0149, 0.1956], "H4": [0.0691, 0.0658, 0.1308, 0.0739, 0.1485], "I1": [0.0449, 0.0419, 0.1248, 0.1741, -1.0], "I2": [0.0026, 0.0142, 0.1133, 0.0229, 0.1692], "I3": [-0.0365, -0.0199, 0.081, 0.1049, 0.2787], "I4": [0.0278, 0.0462, 0.1398, 0.0738, 0.1639]}, "BTW-11": {"A1": [0.0477, -0.0684, -0.0455, -0.039, 0.1857, 0.2366], "A2": [-0.0011, 0.0121, 0.1386, 0.1781, 0.2957, 0.5751], "A3": [-0.0255, 0.0068, 0.1518, 0.1032, 0.2428, 0.2576], "A4": [0.055, -0.0816, -0.0636, 0.0732, 0.3203, 0.3095], "B1": [0.0478, -0.1094, -0.0851, 0.0622, 0.3338, 0.1424], "B2": [0.0345, 0.0481, 0.2169, 0.2836, 0.5108, -1.0], "B3": [0.09, 0.101, 0.1989, -1.0, -1.0, -1.0], "B4": [0.0733, -0.1048, -1.0, -1.0, -1.0, -1.0], "C1": [0.0917, -0.0875, -0.0604, -0.0071, 0.1042, 0.0886], "C2": [0.1515, 0.1485, 0.2816, 0.3332, -1.0, -1.0], "C3": [0.1451, 0.1999, -1.0, -1.0, -1.0, -1.0], "C4": [0.1168, -0.0734, -0.2293, -0.0974, 0.2709, 0.2766], "D1": [0.16, -1.0, -1.0, -1.0, -1.0, -1.0], "D2": [0.1256, 0.0582, 0.1343, 0.1385, 0.3573, 0.5029], "D3": [0.1577, 0.1946, 0.3642, -1.0, -1.0, -1.0], "D4": [0.1488, -1.0, -1.0, -1.0, -1.0, -1.0], "E1": [0.1628, 0.0587, 0.1104, 0.2428, 0.4363, 0.4001], "E2": [0.1369, 0.1413, 0.2213, 0.2587, 0.4034, 0.4463], "E3": [0.1042, 0.1407, 0.2389, 0.1725, 0.3125, 0.3577], "E4": [0.1022, 0.0123, 0.0458, 0.1179, 0.3387, 0.3134], "F1": [0.1473, 0.1096, 0.1944, 0.2108, 0.3356, -1.0], "F2": [0.1488, 0.1548, 0.2447, 0.2561, 0.4791, 0.3515], "F3": [0.1086, 0.1468, 0.2375, 0.1791, 0.3757, 0.3154], "F4": [0.1206, 0.1087, 0.1783, 0.1108, 0.2382, 0.1227], "G1": [0.0754, 0.0988, 0.1977, 0.1218, 0.2157, 0.1134], "G2": [0.1391, 0.1366, 0.2413, 0.2126, 0.4446, 0.4807], "G3": [0.1436, 0.1398, 0.2113, 0.0485, 0.254, 0.2593], "G4": [0.0768, 0.109, 0.2087, -0.0582, 0.0094, -0.1194], "H1": [0.1025, 0.1149, 0.1958, 0.1781, 0.2701, 0.2003], "H2": [0.0367, 0.0351, 0.1306, 0.068, 0.2843, 0.3028], "H3": [0.0558, 0.0527, 0.1712, 0.0149, 0.1956, 0.1874], "H4": [0.0691, 0.0658, 0.1308, 0.0739, 0.1485, 0.0318], "I1": [0.0449, 0.0419, 0.1248, 0.1741, -1.0, -1.0], "I2": [0.0026, 0.0142, 0.1133, 0.0229, 0.1692, 0.2071], "I3": [-0.0365, -0.0199, 0.081, 0.1049, 0.2787, 0.2918], "I4": [0.0278, 0.0462, 0.1398, 0.0738, 0.1639, 0.089]}, "BTW-13": {"A1": [0.0477, -0.0684, -0.0455, -0.039, 0.1857, 0.2366, -0.021], "A2": [-0.0011, 0.0121, 0.1386, 0.1781, 0.2957, 0.5751, -1.0], "A3": [-0.0255, 0.0068, 0.1518, 0.1032, 0.2428, 0.2576, 0.229], "A4": [0.055, -0.0816, -0.0636, 0.0732, 0.3203, 0.3095, 0.299], "B1": [0.0478, -0.1094, -0.0851, 0.0622, 0.3338, 0.1424, 0.0985], "B2": [0.0345, 0.0481, 0.2169, 0.2836, 0.5108, -1.0, -1.0], "B3": [0.09, 0.101, 0.1989, -1.0, -1.0, -1.0, -1.0], "B4": [0.0733, -0.1048, -1.0, -1.0, -1.0, -1.0, -1.0], "C1": [0.0917, -0.0875, -0.0604, -0.0071, 0.1042, 0.0886, 0.0662], "C2": [0.1515, 0.1485, 0.2816, 0.3332, -1.0, -1.0, -1.0], "C3": [0.1451, 0.1999, -1.0, -1.0, -1.0, -1.0, -1.0], "C4": [0.1168, -0.0734, -0.2293, -0.0974, 0.2709, 0.2766, 0.2209], "D1": [0.16, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0], "D2": [0.1256, 0.0582, 0.1343, 0.1385, 0.3573, 0.5029, 0.575], "D3": [0.1577, 0.1946, 0.3642, -1.0, -1.0, -1.0, -1.0], "D4": [0.1488, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0], "E1": [0.1628, 0.0587, 0.1104, 0.2428, 0.4363, 0.4001, 0.3001], "E2": [0.1369, 0.1413, 0.2213, 0.2587, 0.4034, 0.4463, 0.3025], "E3": [0.1042, 0.1407, 0.2389, 0.1725, 0.3125, 0.3577, 0.32], "E4": [0.1022, 0.0123, 0.0458, 0.1179, 0.3387, 0.3134, 0.1803], "F1": [0.1473, 0.1096, 0.1944, 0.2108, 0.3356, -1.0, -1.0], "F2": [0.1488, 0.1548, 0.2447, 0.2561, 0.4791, 0.3515, 0.1702], "F3": [0.1086, 0.1468, 0.2375, 0.1791, 0.3757, 0.3154, 0.1849], "F4": [0.1206, 0.1087, 0.1783, 0.1108, 0.2382, 0.1227, -0.053], "G1": [0.0754, 0.0988, 0.1977, 0.1218, 0.2157, 0.1134, -0.0993], "G2": [0.1391, 0.1366, 0.2413, 0.2126, 0.4446, 0.4807, 0.4255], "G3": [0.1436, 0.1398, 0.2113, 0.0485, 0.254, 0.2593, 0.174], "G4": [0.0768, 0.109, 0.2087, -0.0582, 0.0094, -0.1194, -0.3064], "H1": [0.1025, 0.1149, 0.1958, 0.1781, 0.2701, 0.2003, -1.0], "H2": [0.0367, 0.0351, 0.1306, 0.068, 0.2843, 0.3028, 0.0735], "H3": [0.0558, 0.0527, 0.1712, 0.0149, 0.1956, 0.1874, 0.1962], "H4": [0.0691, 0.0658, 0.1308, 0.0739, 0.1485, 0.0318, -0.186], "I1": [0.0449, 0.0419, 0.1248, 0.1741, -1.0, -1.0, -1.0], "I2": [0.0026, 0.0142, 0.1133, 0.0229, 0.1692, 0.2071, 0.166], "I3": [-0.0365, -0.0199, 0.081, 0.1049, 0.2787, 0.2918, 0.2456], "I4": [0.0278, 0.0462, 0.1398, 0.0738, 0.1639, 0.089, -0.101]}}}, {"GameNum": 4, "goes-first": "O", "winner": "X", "max_moves": 8, "x-moves": ["D3", "F3", "E3", "G3"], "o-moves": ["F1", "F2", "H4", "D4"], "win_sequence": ["D3", "E3", "F3", "G3"], "game_summary": "wins horizontally on move 8", "BTW-arrays": {"BTW-2": ["D3", "G3", "G2", "E2", "C2", "C3", "D2", "D1", "D4", "F3", "E3", "E1", "C4", "C1", "B3", "F4", "B4", "H3", "A1", "A4", "E4", "H2", "B1", "F2", "H1", "B2", "I1", "I2", "H4", "A2", "G1", "G4", "A3", "I4", "I3", "F1"], "BTW-4": ["F3", "F4", "E1", "E3", "D2", "G3", "D1", "C4", "E2", "G2", "C2", "H1", "C1", "G1", "H4", "B3", "H2", "C3", "A3", "I2", "A1", "A4", "B4", "D4", "B2", "I1", "E4", "I4", "G4", "B1", "I3", "A2", "H3", "F1", "F2", "D3"], "BTW-6": ["E3", "G3", "C4", "G2", "D1", "E1", "E2", "D2", "C1", "H2", "C3", "I2", "C2", "A3", "B3", "B4", "A4", "I3", "A1", "B2", "E4", "D4", "B1", "H1", "F4", "A2", "H3", "G1", "I4", "I1", "G4", "F1", "F2", "D3", "F3", "H4"], "BTW-8": ["G3", "C3", "C4", "D1", "E1", "E2", "G2", "B3", "C1", "H2", "I2", "C2", "I3", "D2", "A4", "A3", "B4", "B2", "H1", "A2", "A1", "B1", "G1", "F4", "H3", "I1", "I4", "E4", "G4", "F1", "F2", "D3", "E3", "F3", "D4", "H4"]}, "win_values": {"BTW-2": {"A1": [-0.1456], "A2": [-0.1897], "A3": [-0.211], "A4": [-0.1457], "B1": [-0.1539], "B2": [-0.1637], "B3": [-0.1218], "B4": [-0.1372], "C1": [-0.1172], "C2": [-0.0522], "C3": [-0.0562], "C4": [-0.0991], "D1": [-0.0617], "D2": [-0.0615], "D3": [-0.0185], "D4": [-0.0641], "E1": [-0.0841], "E2": [-0.0482], "E3": [-0.0835], "E4": [-0.1457], "F1": [-1.0], "F2": [-0.1561], "F3": [-0.0668], "F4": [-0.133], "G1": [-0.1974], "G2": [-0.0427], "G3": [-0.0365], "G4": [-0.2015], "H1": [-0.1616], "H2": [-0.1525], "H3": [-0.1454], "H4": [-0.1888], "I1": [-0.1742], "I2": [-0.1864], "I3": [-0.2227], "I4": [-0.2163]}, "BTW-4": {"A1": [-0.1456, -0.1625], "A2": [-0.1897, -0.2523], "A3": [-0.211, -0.1447], "A4": [-0.1457, -0.1683], "B1": [-0.1539, -0.2262], "B2": [-0.1637, -0.1921], "B3": [-0.1218, -0.1297], "B4": [-0.1372, -0.1806], "C1": [-0.1172, -0.117], "C2": [-0.0522, -0.1009], "C3": [-0.0562, -0.1405], "C4": [-0.0991, -0.0392], "D1": [-0.0617, -0.0222], "D2": [-0.0615, -0.0114], "D3": [-0.0185, -1.0], "D4": [-0.0641, -0.19], "E1": [-0.0841, 0.004], "E2": [-0.0482, -0.0409], "E3": [-0.0835, 0.0007], "E4": [-0.1457, -0.1967], "F1": [-1.0, -1.0], "F2": [-0.1561, -1.0], "F3": [-0.0668, 0.0626], "F4": [-0.133, 0.0225], "G1": [-0.1974, -0.1224], "G2": [-0.0427, -0.056], "G3": [-0.0365, -0.0147], "G4": [-0.2015, -0.2169], "H1": [-0.1616, -0.1148], "H2": [-0.1525, -0.1344], "H3": [-0.1454, -0.3088], "H4": [-0.1888, -0.1293], "I1": [-0.1742, -0.1924], "I2": [-0.1864, -0.1531], "I3": [-0.2227, -0.2289], "I4": [-0.2163, -0.1985]}, "BTW-6": {"A1": [-0.1456, -0.1625, -0.0565], "A2": [-0.1897, -0.2523, -0.1425], "A3": [-0.211, -0.1447, -0.0022], "A4": [-0.1457, -0.1683, -0.044], "B1": [-0.1539, -0.2262, -0.0999], "B2": [-0.1637, -0.1921, -0.0682], "B3": [-0.1218, -0.1297, -0.0031], "B4": [-0.1372, -0.1806, -0.0226], "C1": [-0.1172, -0.117, 0.0545], "C2": [-0.0522, -0.1009, 0.0189], "C3": [-0.0562, -0.1405, 0.047], "C4": [-0.0991, -0.0392, 0.1462], "D1": [-0.0617, -0.0222, 0.1209], "D2": [-0.0615, -0.0114, 0.0598], "D3": [-0.0185, -1.0, -1.0], "D4": [-0.0641, -0.19, -0.0833], "E1": [-0.0841, 0.004, 0.1156], "E2": [-0.0482, -0.0409, 0.0767], "E3": [-0.0835, 0.0007, 0.3834], "E4": [-0.1457, -0.1967, -0.0763], "F1": [-1.0, -1.0, -1.0], "F2": [-0.1561, -1.0, -1.0], "F3": [-0.0668, 0.0626, -1.0], "F4": [-0.133, 0.0225, -0.1385], "G1": [-0.1974, -0.1224, -0.145], "G2": [-0.0427, -0.056, 0.1218], "G3": [-0.0365, -0.0147, 0.215], "G4": [-0.2015, -0.2169, -0.2332], "H1": [-0.1616, -0.1148, -0.1347], "H2": [-0.1525, -0.1344, 0.049], "H3": [-0.1454, -0.3088, -0.1438], "H4": [-0.1888, -0.1293, -1.0], "I1": [-0.1742, -0.1924, -0.2018], "I2": [-0.1864, -0.1531, 0.0252], "I3": [-0.2227, -0.2289, -0.0505], "I4": [-0.2163, -0.1985, -0.201]}, "BTW-8": {"A1": [-0.1456, -0.1625, -0.0565, 0.1053], "A2": [-0.1897, -0.2523, -0.1425, 0.1129], "A3": [-0.211, -0.1447, -0.0022, 0.1934], "A4": [-0.1457, -0.1683, -0.044, 0.2024], "B1": [-0.1539, -0.2262, -0.0999, 0.0971], "B2": [-0.1637, -0.1921, -0.0682, 0.1848], "B3": [-0.1218, -0.1297, -0.0031, 0.3049], "B4": [-0.1372, -0.1806, -0.0226, 0.1867], "C1": [-0.1172, -0.117, 0.0545, 0.2924], "C2": [-0.0522, -0.1009, 0.0189, 0.2719], "C3": [-0.0562, -0.1405, 0.047, 0.5824], "C4": [-0.0991, -0.0392, 0.1462, 0.4633], "D1": [-0.0617, -0.0222, 0.1209, 0.4303], "D2": [-0.0615, -0.0114, 0.0598, 0.2124], "D3": [-0.0185, -1.0, -1.0, -1.0], "D4": [-0.0641, -0.19, -0.0833, -1.0], "E1": [-0.0841, 0.004, 0.1156, 0.4092], "E2": [-0.0482, -0.0409, 0.0767, 0.3864], "E3": [-0.0835, 0.0007, 0.3834, -1.0], "E4": [-0.1457, -0.1967, -0.0763, -0.0231], "F1": [-1.0, -1.0, -1.0, -1.0], "F2": [-0.1561, -1.0, -1.0, -1.0], "F3": [-0.0668, 0.0626, -1.0, -1.0], "F4": [-0.133, 0.0225, -0.1385, 0.0621], "G1": [-0.1974, -0.1224, -0.145, 0.0878], "G2": [-0.0427, -0.056, 0.1218, 0.3342], "G3": [-0.0365, -0.0147, 0.215, 0.6711], "G4": [-0.2015, -0.2169, -0.2332, -0.0684], "H1": [-0.1616, -0.1148, -0.1347, 0.1346], "H2": [-0.1525, -0.1344, 0.049, 0.2876], "H3": [-0.1454, -0.3088, -0.1438, 0.038], "H4": [-0.1888, -0.1293, -1.0, -1.0], "I1": [-0.1742, -0.1924, -0.2018, 0.0213], "I2": [-0.1864, -0.1531, 0.0252, 0.2823], "I3": [-0.2227, -0.2289, -0.0505, 0.2581], "I4": [-0.2163, -0.1985, -0.201, -0.0013]}}}, {"GameNum": 5, "goes-first": "X", "winner": "X", "max_moves": 9, "x-moves": ["F2", "D3", "E3", "F3", "G3"], "o-moves": ["E1", "D2", "C3", "G2"], "win_sequence": ["D3", "E3", "F3", "G3"], "game_summary": "wins horizontally on move 9", "BTW-arrays": {"BTW-1": ["E1", "D1", "D3", "C2", "D4", "F1", "F2", "C3", "G3", "G2", "E2", "D2", "F4", "C4", "F3", "E3", "E4", "H1", "C1", "B3", "G4", "G1", "B4", "H4", "A4", "H3", "B1", "A1", "I1", "H2", "B2", "I4", "I2", "A2", "A3", "I3"], "BTW-3": ["D3", "D2", "E3", "G2", "F3", "G3", "C2", "C3", "F4", "D1", "D4", "B3", "H1", "H2", "E2", "G1", "C4", "E4", "G4", "B2", "H4", "I2", "C1", "H3", "I1", "B4", "I4", "A1", "A3", "A2", "A4", "B1", "I3", "F1", "E1", "F2"], "BTW-5": ["E3", "C3", "C2", "F3", "G3", "G2", "F4", "B3", "C4", "H1", "H2", "C1", "E4", "H4", "G1", "B2", "A4", "I1", "G4", "B4", "I2", "A3", "A1", "A2", "I4", "B1", "H3", "I3", "D4", "E2", "D1", "F1", "E1", "D2", "F2", "D3"], "BTW-7": ["F3", "G3", "C2", "C1", "G2", "B4", "A4", "F4", "B1", "H2", "B3", "H1", "A1", "D4", "D1", "H4", "A2", "I1", "B2", "G1", "C4", "A3", "I2", "G4", "I3", "F1", "I4", "H3", "E2", "E4", "E1", "D2", "F2", "C3", "D3", "E3"], "BTW-9": ["G3", "C1", "G4", "C2", "H1", "B3", "A4", "B4", "H4", "B1", "B2", "D4", "I1", "A1", "F1", "I2", "A3", "D1", "A2", "I4", "C4", "H3", "E2", "H2", "I3", "F4", "E4", "G1", "E1", "D2", "F2", "G2", "C3", "D3", "E3", "F3"]}, "win_values": {"BTW-1": {"A1": [0.0504], "A2": [0.0007], "A3": [-0.0226], "A4": [0.058], "B1": [0.0507], "B2": [0.0359], "B3": [0.0912], "B4": [0.0764], "C1": [0.0947], "C2": [0.1521], "C3": [0.148], "C4": [0.1203], "D1": [0.1631], "D2": [0.1262], "D3": [0.1585], "D4": [0.1518], "E1": [0.1659], "E2": [0.1376], "E3": [0.1073], "E4": [0.1055], "F1": [0.1501], "F2": [0.1494], "F3": [0.1094], "F4": [0.1234], "G1": [0.0782], "G2": [0.1397], "G3": [0.1466], "G4": [0.0799], "H1": [0.1054], "H2": [0.0375], "H3": [0.0569], "H4": [0.0723], "I1": [0.0473], "I2": [0.0034], "I3": [-0.0335], "I4": [0.0307]}, "BTW-3": {"A1": [0.0504, 0.0038], "A2": [0.0007, 0.0017], "A3": [-0.0226, 0.0025], "A4": [0.058, 0.0001], "B1": [0.0507, -0.0158], "B2": [0.0359, 0.0409], "B3": [0.0912, 0.096], "B4": [0.0764, 0.009], "C1": [0.0947, 0.0366], "C2": [0.1521, 0.1629], "C3": [0.148, 0.146], "C4": [0.1203, 0.0659], "D1": [0.1631, 0.11], "D2": [0.1262, 0.1754], "D3": [0.1585, 0.1895], "D4": [0.1518, 0.0986], "E1": [0.1659, -1.0], "E2": [0.1376, 0.0752], "E3": [0.1073, 0.1747], "E4": [0.1055, 0.0535], "F1": [0.1501, -0.0495], "F2": [0.1494, -1.0], "F3": [0.1094, 0.1635], "F4": [0.1234, 0.1213], "G1": [0.0782, 0.0662], "G2": [0.1397, 0.1699], "G3": [0.1466, 0.1635], "G4": [0.0799, 0.0533], "H1": [0.1054, 0.0829], "H2": [0.0375, 0.0795], "H3": [0.0569, 0.0245], "H4": [0.0723, 0.0391], "I1": [0.0473, 0.0156], "I2": [0.0034, 0.039], "I3": [-0.0335, -0.0231], "I4": [0.0307, 0.0085]}, "BTW-5": {"A1": [0.0504, 0.0038, -0.0534], "A2": [0.0007, 0.0017, -0.0575], "A3": [-0.0226, 0.0025, -0.0458], "A4": [0.058, 0.0001, -0.0267], "B1": [0.0507, -0.0158, -0.0598], "B2": [0.0359, 0.0409, -0.0223], "B3": [0.0912, 0.096, 0.0538], "B4": [0.0764, 0.009, -0.0383], "C1": [0.0947, 0.0366, 0.0017], "C2": [0.1521, 0.1629, 0.1145], "C3": [0.148, 0.146, 0.1557], "C4": [0.1203, 0.0659, 0.0357], "D1": [0.1631, 0.11, -0.0974], "D2": [0.1262, 0.1754, -1.0], "D3": [0.1585, 0.1895, -1.0], "D4": [0.1518, 0.0986, -0.0933], "E1": [0.1659, -1.0, -1.0], "E2": [0.1376, 0.0752, -0.0962], "E3": [0.1073, 0.1747, 0.1963], "E4": [0.1055, 0.0535, -0.0022], "F1": [0.1501, -0.0495, -0.0979], "F2": [0.1494, -1.0, -1.0], "F3": [0.1094, 0.1635, 0.1022], "F4": [0.1234, 0.1213, 0.0562], "G1": [0.0782, 0.0662, -0.0164], "G2": [0.1397, 0.1699, 0.0779], "G3": [0.1466, 0.1635, 0.0915], "G4": [0.0799, 0.0533, -0.0327], "H1": [0.1054, 0.0829, 0.0281], "H2": [0.0375, 0.0795, 0.0184], "H3": [0.0569, 0.0245, -0.0754], "H4": [0.0723, 0.0391, -0.0111], "I1": [0.0473, 0.0156, -0.0296], "I2": [0.0034, 0.039, -0.0449], "I3": [-0.0335, -0.0231, -0.0824], "I4": [0.0307, 0.0085, -0.0583]}, "BTW-7": {"A1": [0.0504, 0.0038, -0.0534, -0.0129], "A2": [0.0007, 0.0017, -0.0575, -0.0396], "A3": [-0.0226, 0.0025, -0.0458, -0.0688], "A4": [0.058, 0.0001, -0.0267, 0.0348], "B1": [0.0507, -0.0158, -0.0598, 0.0278], "B2": [0.0359, 0.0409, -0.0223, -0.0465], "B3": [0.0912, 0.096, 0.0538, 0.0043], "B4": [0.0764, 0.009, -0.0383, 0.0349], "C1": [0.0947, 0.0366, 0.0017, 0.1042], "C2": [0.1521, 0.1629, 0.1145, 0.1127], "C3": [0.148, 0.146, 0.1557, -1.0], "C4": [0.1203, 0.0659, 0.0357, -0.057], "D1": [0.1631, 0.11, -0.0974, -0.029], "D2": [0.1262, 0.1754, -1.0, -1.0], "D3": [0.1585, 0.1895, -1.0, -1.0], "D4": [0.1518, 0.0986, -0.0933, -0.0197], "E1": [0.1659, -1.0, -1.0, -1.0], "E2": [0.1376, 0.0752, -0.0962, -0.1139], "E3": [0.1073, 0.1747, 0.1963, -1.0], "E4": [0.1055, 0.0535, -0.0022, -0.1614], "F1": [0.1501, -0.0495, -0.0979, -0.0914], "F2": [0.1494, -1.0, -1.0, -1.0], "F3": [0.1094, 0.1635, 0.1022, 0.1847], "F4": [0.1234, 0.1213, 0.0562, 0.0331], "G1": [0.0782, 0.0662, -0.0164, -0.0523], "G2": [0.1397, 0.1699, 0.0779, 0.0886], "G3": [0.1466, 0.1635, 0.0915, 0.155], "G4": [0.0799, 0.0533, -0.0327, -0.0817], "H1": [0.1054, 0.0829, 0.0281, -0.0013], "H2": [0.0375, 0.0795, 0.0184, 0.026], "H3": [0.0569, 0.0245, -0.0754, -0.1007], "H4": [0.0723, 0.0391, -0.0111, -0.0386], "I1": [0.0473, 0.0156, -0.0296, -0.0399], "I2": [0.0034, 0.039, -0.0449, -0.0702], "I3": [-0.0335, -0.0231, -0.0824, -0.0869], "I4": [0.0307, 0.0085, -0.0583, -0.0993]}, "BTW-9": {"A1": [0.0504, 0.0038, -0.0534, -0.0129, 0.216], "A2": [0.0007, 0.0017, -0.0575, -0.0396, 0.1921], "A3": [-0.0226, 0.0025, -0.0458, -0.0688, 0.2042], "A4": [0.058, 0.0001, -0.0267, 0.0348, 0.2798], "B1": [0.0507, -0.0158, -0.0598, 0.0278, 0.2364], "B2": [0.0359, 0.0409, -0.0223, -0.0465, 0.2298], "B3": [0.0912, 0.096, 0.0538, 0.0043, 0.2861], "B4": [0.0764, 0.009, -0.0383, 0.0349, 0.2765], "C1": [0.0947, 0.0366, 0.0017, 0.1042, 0.3422], "C2": [0.1521, 0.1629, 0.1145, 0.1127, 0.3299], "C3": [0.148, 0.146, 0.1557, -1.0, -1.0], "C4": [0.1203, 0.0659, 0.0357, -0.057, 0.1828], "D1": [0.1631, 0.11, -0.0974, -0.029, 0.2026], "D2": [0.1262, 0.1754, -1.0, -1.0, -1.0], "D3": [0.1585, 0.1895, -1.0, -1.0, -1.0], "D4": [0.1518, 0.0986, -0.0933, -0.0197, 0.2262], "E1": [0.1659, -1.0, -1.0, -1.0, -1.0], "E2": [0.1376, 0.0752, -0.0962, -0.1139, 0.1747], "E3": [0.1073, 0.1747, 0.1963, -1.0, -1.0], "E4": [0.1055, 0.0535, -0.0022, -0.1614, 0.0917], "F1": [0.1501, -0.0495, -0.0979, -0.0914, 0.2121], "F2": [0.1494, -1.0, -1.0, -1.0, -1.0], "F3": [0.1094, 0.1635, 0.1022, 0.1847, -1.0], "F4": [0.1234, 0.1213, 0.0562, 0.0331, 0.1094], "G1": [0.0782, 0.0662, -0.0164, -0.0523, 0.0745], "G2": [0.1397, 0.1699, 0.0779, 0.0886, -1.0], "G3": [0.1466, 0.1635, 0.0915, 0.155, 0.6562], "G4": [0.0799, 0.0533, -0.0327, -0.0817, 0.332], "H1": [0.1054, 0.0829, 0.0281, -0.0013, 0.324], "H2": [0.0375, 0.0795, 0.0184, 0.026, 0.1659], "H3": [0.0569, 0.0245, -0.0754, -0.1007, 0.1804], "H4": [0.0723, 0.0391, -0.0111, -0.0386, 0.258], "I1": [0.0473, 0.0156, -0.0296, -0.0399, 0.2217], "I2": [0.0034, 0.039, -0.0449, -0.0702, 0.2043], "I3": [-0.0335, -0.0231, -0.0824, -0.0869, 0.1527], "I4": [0.0307, 0.0085, -0.0583, -0.0993, 0.187]}}}, {"GameNum": 6, "goes-first": "X", "winner": "O", "max_moves": 8, "x-moves": ["E1", "G3", "F3", "E3"], "o-moves": ["D2", "C2", "B2", "A2"], "win_sequence": ["A2", "B2", "C2", "D2"], "game_summary": "wins horizontally on move 8", "BTW-arrays": {"BTW-1": ["E1", "D1", "D4", "F1", "D3", "G3", "F4", "C3", "C4", "H1", "C2", "E4", "F3", "C1", "G2", "E3", "E2", "H4", "G4", "B3", "G1", "B4", "F2", "A4", "A1", "I1", "D2", "H3", "B1", "I4", "A2", "H2", "A3", "B2", "I3", "I2"], "BTW-3": ["G3", "E3", "D4", "F1", "E2", "C3", "C4", "F4", "F3", "H1", "G2", "E4", "B3", "C1", "B4", "D1", "G4", "H4", "A4", "A1", "F2", "G1", "I1", "A2", "H3", "H2", "B1", "D3", "I4", "C2", "I3", "A3", "I2", "B2", "E1", "D2"], "BTW-5": ["F3", "D4", "F4", "F1", "C4", "H1", "H4", "G1", "B3", "E4", "E3", "A1", "B4", "D1", "A4", "I1", "A2", "D3", "H3", "I4", "C3", "G2", "E2", "F2", "B1", "I3", "I2", "A3", "G4", "C1", "H2", "B2", "E1", "C2", "D2", "G3"], "BTW-7": ["E3", "D4", "C4", "H3", "F1", "B4", "D3", "E4", "A1", "H1", "H4", "A4", "G1", "G2", "D1", "I1", "F4", "I4", "B3", "A2", "C1", "I3", "C3", "E2", "B1", "G4", "F2", "I2", "A3", "H2", "E1", "B2", "C2", "D2", "F3", "G3"]}, "win_values": {"BTW-1": {"A1": [0.031], "A2": [-0.0336], "A3": [-0.0562], "A4": [0.0377], "B1": [0.021], "B2": [-0.0596], "B3": [0.0557], "B4": [0.0542], "C1": [0.0685], "C2": [0.08], "C3": [0.0976], "C4": [0.0968], "D1": [0.1362], "D2": [0.0237], "D3": [0.125], "D4": [0.1331], "E1": [0.1413], "E2": [0.0647], "E3": [0.0652], "E4": [0.0789], "F1": [0.127], "F2": [0.0456], "F3": [0.0697], "F4": [0.1046], "G1": [0.055], "G2": [0.0678], "G3": [0.1052], "G4": [0.0594], "H1": [0.0856], "H2": [-0.0421], "H3": [0.0215], "H4": [0.0607], "I1": [0.0269], "I2": [-0.0704], "I3": [-0.0699], "I4": [0.0116]}, "BTW-3": {"A1": [0.031, -0.0342], "A2": [-0.0336, -0.0502], "A3": [-0.0562, -0.1212], "A4": [0.0377, -0.0328], "B1": [0.021, -0.0619], "B2": [-0.0596, -0.2219], "B3": [0.0557, -0.0187], "B4": [0.0542, -0.0235], "C1": [0.0685, -0.0198], "C2": [0.08, -0.1006], "C3": [0.0976, 0.0292], "C4": [0.0968, 0.0153], "D1": [0.1362, -0.0247], "D2": [0.0237, -1.0], "D3": [0.125, -0.0677], "D4": [0.1331, 0.0506], "E1": [0.1413, -1.0], "E2": [0.0647, 0.0308], "E3": [0.0652, 0.0669], "E4": [0.0789, -0.0075], "F1": [0.127, 0.0385], "F2": [0.0456, -0.0359], "F3": [0.0697, 0.0122], "F4": [0.1046, 0.0144], "G1": [0.055, -0.0433], "G2": [0.0678, 0.0017], "G3": [0.1052, 0.0858], "G4": [0.0594, -0.0294], "H1": [0.0856, 0.0026], "H2": [-0.0421, -0.0601], "H3": [0.0215, -0.0541], "H4": [0.0607, -0.0296], "I1": [0.0269, -0.0455], "I2": [-0.0704, -0.1232], "I3": [-0.0699, -0.1175], "I4": [0.0116, -0.0695]}, "BTW-5": {"A1": [0.031, -0.0342, -0.0028], "A2": [-0.0336, -0.0502, -0.0307], "A3": [-0.0562, -0.1212, -0.1961], "A4": [0.0377, -0.0328, -0.0188], "B1": [0.021, -0.0619, -0.0908], "B2": [-0.0596, -0.2219, -0.3917], "B3": [0.0557, -0.0187, 0.0159], "B4": [0.0542, -0.0235, -0.0063], "C1": [0.0685, -0.0198, -0.2145], "C2": [0.08, -0.1006, -1.0], "C3": [0.0976, 0.0292, -0.0492], "C4": [0.0968, 0.0153, 0.0652], "D1": [0.1362, -0.0247, -0.0186], "D2": [0.0237, -1.0, -1.0], "D3": [0.125, -0.0677, -0.0317], "D4": [0.1331, 0.0506, 0.0875], "E1": [0.1413, -1.0, -1.0], "E2": [0.0647, 0.0308, -0.0825], "E3": [0.0652, 0.0669, 0.0071], "E4": [0.0789, -0.0075, 0.0134], "F1": [0.127, 0.0385, 0.072], "F2": [0.0456, -0.0359, -0.0863], "F3": [0.0697, 0.0122, 0.0942], "F4": [0.1046, 0.0144, 0.0762], "G1": [0.055, -0.0433, 0.0222], "G2": [0.0678, 0.0017, -0.0526], "G3": [0.1052, 0.0858, -1.0], "G4": [0.0594, -0.0294, -0.2116], "H1": [0.0856, 0.0026, 0.0318], "H2": [-0.0421, -0.0601, -0.26], "H3": [0.0215, -0.0541, -0.0421], "H4": [0.0607, -0.0296, 0.0287], "I1": [0.0269, -0.0455, -0.023], "I2": [-0.0704, -0.1232, -0.1601], "I3": [-0.0699, -0.1175, -0.1364], "I4": [0.0116, -0.0695, -0.0456]}, "BTW-7": {"A1": [0.031, -0.0342, -0.0028, -0.0147], "A2": [-0.0336, -0.0502, -0.0307, -0.196], "A3": [-0.0562, -0.1212, -0.1961, -0.3369], "A4": [0.0377, -0.0328, -0.0188, -0.0365], "B1": [0.021, -0.0619, -0.0908, -0.253], "B2": [-0.0596, -0.2219, -0.3917, -1.0], "B3": [0.0557, -0.0187, 0.0159, -0.1106], "B4": [0.0542, -0.0235, -0.0063, 0.0086], "C1": [0.0685, -0.0198, -0.2145, -0.2052], "C2": [0.08, -0.1006, -1.0, -1.0], "C3": [0.0976, 0.0292, -0.0492, -0.2297], "C4": [0.0968, 0.0153, 0.0652, 0.044], "D1": [0.1362, -0.0247, -0.0186, -0.0522], "D2": [0.0237, -1.0, -1.0, -1.0], "D3": [0.125, -0.0677, -0.0317, 0.0043], "D4": [0.1331, 0.0506, 0.0875, 0.0885], "E1": [0.1413, -1.0, -1.0, -1.0], "E2": [0.0647, 0.0308, -0.0825, -0.2442], "E3": [0.0652, 0.0669, 0.0071, 0.121], "E4": [0.0789, -0.0075, 0.0134, -0.0031], "F1": [0.127, 0.0385, 0.072, 0.0283], "F2": [0.0456, -0.0359, -0.0863, -0.2652], "F3": [0.0697, 0.0122, 0.0942, -1.0], "F4": [0.1046, 0.0144, 0.0762, -0.0636], "G1": [0.055, -0.0433, 0.0222, -0.0397], "G2": [0.0678, 0.0017, -0.0526, -0.0513], "G3": [0.1052, 0.0858, -1.0, -1.0], "G4": [0.0594, -0.0294, -0.2116, -0.2607], "H1": [0.0856, 0.0026, 0.0318, -0.0276], "H2": [-0.0421, -0.0601, -0.26, -0.509], "H3": [0.0215, -0.0541, -0.0421, 0.0379], "H4": [0.0607, -0.0296, 0.0287, -0.0321], "I1": [0.0269, -0.0455, -0.023, -0.0584], "I2": [-0.0704, -0.1232, -0.1601, -0.2717], "I3": [-0.0699, -0.1175, -0.1364, -0.2227], "I4": [0.0116, -0.0695, -0.0456, -0.0982]}}}, {"GameNum": 7, "goes-first": "X", "winner": "X", "max_moves": 11, "x-moves": ["E2", "F1", "D3", "E3", "F3", "G3"], "o-moves": ["G2", "H4", "D1", "C1", "H1"], "win_sequence": ["D3", "E3", "F3", "G3"], "game_summary": "wins horizontally on move 11", "BTW-arrays": {"BTW-1": ["C2", "E1", "D1", "G2", "D3", "E2", "D4", "F1", "F2", "C3", "G3", "D2", "F4", "C4", "E3", "H1", "F3", "E4", "C1", "B3", "G1", "G4", "B4", "H4", "A4", "H3", "A1", "B1", "I1", "H2", "B2", "I4", "A2", "I2", "A3", "I3"], "BTW-3": ["C2", "F1", "D1", "E3", "D4", "H1", "F4", "D3", "C3", "G3", "G4", "F2", "F3", "D2", "C4", "E4", "C1", "H4", "B3", "I1", "B4", "A4", "A1", "H2", "I2", "H3", "I4", "B2", "B1", "E1", "A2", "A3", "I3", "G1", "E2", "G2"], "BTW-5": ["D3", "E3", "D1", "F3", "C2", "C4", "D2", "D4", "H2", "C3", "G3", "C1", "B4", "B3", "I2", "B1", "H3", "A4", "E4", "B2", "A1", "I3", "F2", "A2", "A3", "F4", "E1", "H1", "I1", "G4", "I4", "G1", "F1", "E2", "G2", "H4"], "BTW-7": ["E3", "F3", "C3", "C2", "C4", "G3", "C1", "B3", "H2", "B4", "I2", "B2", "E4", "A2", "H3", "I3", "F2", "A4", "A3", "B1", "A1", "D4", "D2", "F4", "E1", "H1", "I1", "G4", "I4", "G1", "D1", "F1", "E2", "G2", "D3", "H4"], "BTW-9": ["F3", "C3", "G3", "A2", "I2", "B3", "B2", "F2", "C4", "A3", "I3", "C2", "H3", "F4", "B4", "A4", "B1", "H2", "D2", "A1", "H1", "D4", "G4", "E1", "I1", "E4", "I4", "G1", "C1", "D1", "F1", "E2", "G2", "D3", "E3", "H4"], "BTW-11": ["G3", "C3", "F2", "H3", "I2", "C4", "A2", "A3", "B2", "B4", "I3", "A4", "B1", "B3", "C2", "A1", "D4", "E1", "G4", "E4", "H2", "I1", "D2", "I4", "F4", "G1", "C1", "D1", "F1", "H1", "E2", "G2", "D3", "E3", "F3", "H4"]}, "win_values": {"BTW-1": {"A1": [0.0421], "A2": [0.0046], "A3": [-0.0343], "A4": [0.047], "B1": [0.0401], "B2": [0.0263], "B3": [0.0794], "B4": [0.0644], "C1": [0.0849], "C2": [0.1586], "C3": [0.1378], "C4": [0.1077], "D1": [0.1513], "D2": [0.1153], "D3": [0.1451], "D4": [0.1402], "E1": [0.1562], "E2": [0.1438], "E3": [0.0967], "E4": [0.0941], "F1": [0.14], "F2": [0.1388], "F3": [0.0951], "F4": [0.1125], "G1": [0.0699], "G2": [0.147], "G3": [0.1372], "G4": [0.0691], "H1": [0.0953], "H2": [0.0289], "H3": [0.0436], "H4": [0.0638], "I1": [0.0401], "I2": [0.0044], "I3": [-0.0466], "I4": [0.021]}, "BTW-3": {"A1": [0.0421, 0.043], "A2": [0.0046, -0.0218], "A3": [-0.0343, -0.0294], "A4": [0.047, 0.0464], "B1": [0.0401, 0.0155], "B2": [0.0263, 0.0169], "B3": [0.0794, 0.0656], "B4": [0.0644, 0.0608], "C1": [0.0849, 0.0933], "C2": [0.1586, 0.2013], "C3": [0.1378, 0.1494], "C4": [0.1077, 0.1055], "D1": [0.1513, 0.1704], "D2": [0.1153, 0.1121], "D3": [0.1451, 0.1509], "D4": [0.1402, 0.1537], "E1": [0.1562, -0.0074], "E2": [0.1438, -1.0], "E3": [0.0967, 0.1586], "E4": [0.0941, 0.0983], "F1": [0.14, 0.1834], "F2": [0.1388, 0.1324], "F3": [0.0951, 0.128], "F4": [0.1125, 0.1523], "G1": [0.0699, -0.0858], "G2": [0.147, -1.0], "G3": [0.1372, 0.1445], "G4": [0.0691, 0.1341], "H1": [0.0953, 0.153], "H2": [0.0289, 0.0349], "H3": [0.0436, 0.0214], "H4": [0.0638, 0.0811], "I1": [0.0401, 0.0637], "I2": [0.0044, 0.0324], "I3": [-0.0466, -0.0372], "I4": [0.021, 0.0195]}, "BTW-5": {"A1": [0.0421, 0.043, 0.093], "A2": [0.0046, -0.0218, 0.0636], "A3": [-0.0343, -0.0294, 0.0506], "A4": [0.047, 0.0464, 0.1106], "B1": [0.0401, 0.0155, 0.1154], "B2": [0.0263, 0.0169, 0.0945], "B3": [0.0794, 0.0656, 0.1244], "B4": [0.0644, 0.0608, 0.1736], "C1": [0.0849, 0.0933, 0.2003], "C2": [0.1586, 0.2013, 0.2336], "C3": [0.1378, 0.1494, 0.204], "C4": [0.1077, 0.1055, 0.2294], "D1": [0.1513, 0.1704, 0.24], "D2": [0.1153, 0.1121, 0.2217], "D3": [0.1451, 0.1509, 0.2806], "D4": [0.1402, 0.1537, 0.2215], "E1": [0.1562, -0.0074, -0.0195], "E2": [0.1438, -1.0, -1.0], "E3": [0.0967, 0.1586, 0.2449], "E4": [0.0941, 0.0983, 0.0985], "F1": [0.14, 0.1834, -1.0], "F2": [0.1388, 0.1324, 0.0639], "F3": [0.0951, 0.128, 0.2397], "F4": [0.1125, 0.1523, 0.0332], "G1": [0.0699, -0.0858, -0.2555], "G2": [0.147, -1.0, -1.0], "G3": [0.1372, 0.1445, 0.2012], "G4": [0.0691, 0.1341, -0.0635], "H1": [0.0953, 0.153, -0.0243], "H2": [0.0289, 0.0349, 0.21], "H3": [0.0436, 0.0214, 0.1116], "H4": [0.0638, 0.0811, -1.0], "I1": [0.0401, 0.0637, -0.0603], "I2": [0.0044, 0.0324, 0.1187], "I3": [-0.0466, -0.0372, 0.0773], "I4": [0.021, 0.0195, -0.1267]}, "BTW-7": {"A1": [0.0421, 0.043, 0.093, 0.1437], "A2": [0.0046, -0.0218, 0.0636, 0.1872], "A3": [-0.0343, -0.0294, 0.0506, 0.1716], "A4": [0.047, 0.0464, 0.1106, 0.1762], "B1": [0.0401, 0.0155, 0.1154, 0.1683], "B2": [0.0263, 0.0169, 0.0945, 0.1971], "B3": [0.0794, 0.0656, 0.1244, 0.2613], "B4": [0.0644, 0.0608, 0.1736, 0.236], "C1": [0.0849, 0.0933, 0.2003, 0.2637], "C2": [0.1586, 0.2013, 0.2336, 0.3369], "C3": [0.1378, 0.1494, 0.204, 0.3736], "C4": [0.1077, 0.1055, 0.2294, 0.3134], "D1": [0.1513, 0.1704, 0.24, -1.0], "D2": [0.1153, 0.1121, 0.2217, 0.1127], "D3": [0.1451, 0.1509, 0.2806, -1.0], "D4": [0.1402, 0.1537, 0.2215, 0.1184], "E1": [0.1562, -0.0074, -0.0195, 0.0444], "E2": [0.1438, -1.0, -1.0, -1.0], "E3": [0.0967, 0.1586, 0.2449, 0.4218], "E4": [0.0941, 0.0983, 0.0985, 0.1876], "F1": [0.14, 0.1834, -1.0, -1.0], "F2": [0.1388, 0.1324, 0.0639, 0.1777], "F3": [0.0951, 0.128, 0.2397, 0.3829], "F4": [0.1125, 0.1523, 0.0332, 0.1008], "G1": [0.0699, -0.0858, -0.2555, -0.1986], "G2": [0.147, -1.0, -1.0, -1.0], "G3": [0.1372, 0.1445, 0.2012, 0.2883], "G4": [0.0691, 0.1341, -0.0635, -0.0216], "H1": [0.0953, 0.153, -0.0243, 0.0308], "H2": [0.0289, 0.0349, 0.21, 0.2469], "H3": [0.0436, 0.0214, 0.1116, 0.1854], "H4": [0.0638, 0.0811, -1.0, -1.0], "I1": [0.0401, 0.0637, -0.0603, 0.0008], "I2": [0.0044, 0.0324, 0.1187, 0.2257], "I3": [-0.0466, -0.0372, 0.0773, 0.1813], "I4": [0.021, 0.0195, -0.1267, -0.0695]}, "BTW-9": {"A1": [0.0421, 0.043, 0.093, 0.1437, 0.148], "A2": [0.0046, -0.0218, 0.0636, 0.1872, 0.348], "A3": [-0.0343, -0.0294, 0.0506, 0.1716, 0.2847], "A4": [0.047, 0.0464, 0.1106, 0.1762, 0.176], "B1": [0.0401, 0.0155, 0.1154, 0.1683, 0.1648], "B2": [0.0263, 0.0169, 0.0945, 0.1971, 0.3031], "B3": [0.0794, 0.0656, 0.1244, 0.2613, 0.3425], "B4": [0.0644, 0.0608, 0.1736, 0.236, 0.1956], "C1": [0.0849, 0.0933, 0.2003, 0.2637, -1.0], "C2": [0.1586, 0.2013, 0.2336, 0.3369, 0.2689], "C3": [0.1378, 0.1494, 0.204, 0.3736, 0.5155], "C4": [0.1077, 0.1055, 0.2294, 0.3134, 0.2874], "D1": [0.1513, 0.1704, 0.24, -1.0, -1.0], "D2": [0.1153, 0.1121, 0.2217, 0.1127, 0.1483], "D3": [0.1451, 0.1509, 0.2806, -1.0, -1.0], "D4": [0.1402, 0.1537, 0.2215, 0.1184, 0.1062], "E1": [0.1562, -0.0074, -0.0195, 0.0444, 0.0919], "E2": [0.1438, -1.0, -1.0, -1.0, -1.0], "E3": [0.0967, 0.1586, 0.2449, 0.4218, -1.0], "E4": [0.0941, 0.0983, 0.0985, 0.1876, 0.0298], "F1": [0.14, 0.1834, -1.0, -1.0, -1.0], "F2": [0.1388, 0.1324, 0.0639, 0.1777, 0.2881], "F3": [0.0951, 0.128, 0.2397, 0.3829, 0.6174], "F4": [0.1125, 0.1523, 0.0332, 0.1008, 0.199], "G1": [0.0699, -0.0858, -0.2555, -0.1986, -0.0797], "G2": [0.147, -1.0, -1.0, -1.0, -1.0], "G3": [0.1372, 0.1445, 0.2012, 0.2883, 0.4025], "G4": [0.0691, 0.1341, -0.0635, -0.0216, 0.0937], "H1": [0.0953, 0.153, -0.0243, 0.0308, 0.1173], "H2": [0.0289, 0.0349, 0.21, 0.2469, 0.1594], "H3": [0.0436, 0.0214, 0.1116, 0.1854, 0.2621], "H4": [0.0638, 0.0811, -1.0, -1.0, -1.0], "I1": [0.0401, 0.0637, -0.0603, 0.0008, 0.078], "I2": [0.0044, 0.0324, 0.1187, 0.2257, 0.344], "I3": [-0.0466, -0.0372, 0.0773, 0.1813, 0.2725], "I4": [0.021, 0.0195, -0.1267, -0.0695, 0.0119]}, "BTW-11": {"A1": [0.0421, 0.043, 0.093, 0.1437, 0.148, 0.2601], "A2": [0.0046, -0.0218, 0.0636, 0.1872, 0.348, 0.4202], "A3": [-0.0343, -0.0294, 0.0506, 0.1716, 0.2847, 0.3847], "A4": [0.047, 0.0464, 0.1106, 0.1762, 0.176, 0.3154], "B1": [0.0401, 0.0155, 0.1154, 0.1683, 0.1648, 0.3083], "B2": [0.0263, 0.0169, 0.0945, 0.1971, 0.3031, 0.3498], "B3": [0.0794, 0.0656, 0.1244, 0.2613, 0.3425, 0.2984], "B4": [0.0644, 0.0608, 0.1736, 0.236, 0.1956, 0.343], "C1": [0.0849, 0.0933, 0.2003, 0.2637, -1.0, -1.0], "C2": [0.1586, 0.2013, 0.2336, 0.3369, 0.2689, 0.2771], "C3": [0.1378, 0.1494, 0.204, 0.3736, 0.5155, 0.6592], "C4": [0.1077, 0.1055, 0.2294, 0.3134, 0.2874, 0.4471], "D1": [0.1513, 0.1704, 0.24, -1.0, -1.0, -1.0], "D2": [0.1153, 0.1121, 0.2217, 0.1127, 0.1483, 0.0901], "D3": [0.1451, 0.1509, 0.2806, -1.0, -1.0, -1.0], "D4": [0.1402, 0.1537, 0.2215, 0.1184, 0.1062, 0.2528], "E1": [0.1562, -0.0074, -0.0195, 0.0444, 0.0919, 0.1949], "E2": [0.1438, -1.0, -1.0, -1.0, -1.0, -1.0], "E3": [0.0967, 0.1586, 0.2449, 0.4218, -1.0, -1.0], "E4": [0.0941, 0.0983, 0.0985, 0.1876, 0.0298, 0.1325], "F1": [0.14, 0.1834, -1.0, -1.0, -1.0, -1.0], "F2": [0.1388, 0.1324, 0.0639, 0.1777, 0.2881, 0.5101], "F3": [0.0951, 0.128, 0.2397, 0.3829, 0.6174, -1.0], "F4": [0.1125, 0.1523, 0.0332, 0.1008, 0.199, 0.0053], "G1": [0.0699, -0.0858, -0.2555, -0.1986, -0.0797, -0.1076], "G2": [0.147, -1.0, -1.0, -1.0, -1.0, -1.0], "G3": [0.1372, 0.1445, 0.2012, 0.2883, 0.4025, 0.7349], "G4": [0.0691, 0.1341, -0.0635, -0.0216, 0.0937, 0.1434], "H1": [0.0953, 0.153, -0.0243, 0.0308, 0.1173, -1.0], "H2": [0.0289, 0.0349, 0.21, 0.2469, 0.1594, 0.1217], "H3": [0.0436, 0.0214, 0.1116, 0.1854, 0.2621, 0.4849], "H4": [0.0638, 0.0811, -1.0, -1.0, -1.0, -1.0], "I1": [0.0401, 0.0637, -0.0603, 0.0008, 0.078, 0.0992], "I2": [0.0044, 0.0324, 0.1187, 0.2257, 0.344, 0.4825], "I3": [-0.0466, -0.0372, 0.0773, 0.1813, 0.2725, 0.3384], "I4": [0.021, 0.0195, -0.1267, -0.0695, 0.0119, 0.0083]}}}, {"GameNum": 8, "goes-first": "X", "winner": "O", "max_moves": 16, "x-moves": ["D1", "C2", "F2", "B3", "H1", "G3", "H4", "I2"], "o-moves": ["D3", "E2", "C4", "E3", "F3", "G2", "H2", "F1"], "win_sequence": ["C4", "D3", "E2", "F1"], "game_summary": "wins diagonally on move 16", "BTW-arrays": {"BTW-1": ["E1", "D1", "C2", "D3", "D4", "F1", "G2", "E2", "C3", "G3", "F2", "F4", "C4", "D2", "F3", "E3", "H1", "E4", "C1", "B3", "G1", "G4", "B4", "H4", "A4", "H3", "A1", "B1", "I1", "I4", "H2", "B2", "I2", "A2", "A3", "I3"], "BTW-3": ["C2", "E2", "C3", "F2", "G2", "F3", "B3", "E3", "G3", "E1", "F1", "F4", "H1", "H4", "G1", "E4", "G4", "I1", "C4", "I4", "C1", "H3", "H2", "B2", "A2", "I2", "A4", "B4", "A1", "A3", "I3", "B1", "D2", "D4", "D1", "D3"], "BTW-5": ["F2", "B3", "C3", "G3", "F1", "E3", "G2", "C4", "H1", "F4", "E4", "H4", "G1", "F3", "I1", "G4", "B4", "A4", "B2", "A1", "H2", "I4", "A2", "H3", "B1", "I2", "E1", "A3", "D4", "I3", "C1", "D2", "D1", "C2", "E2", "D3"], "BTW-7": ["H1", "B3", "E3", "G3", "F4", "G1", "H4", "G4", "G2", "I1", "F3", "I4", "C3", "H2", "A2", "I2", "E4", "B2", "F1", "A3", "H3", "I3", "A1", "E1", "A4", "B4", "B1", "D4", "D2", "C1", "D1", "C2", "E2", "F2", "D3", "C4"], "BTW-9": ["H1", "G3", "F4", "G1", "H4", "G2", "F3", "I1", "G4", "A3", "I4", "H2", "A2", "A4", "I2", "E1", "C3", "F1", "A1", "B2", "B1", "H3", "D4", "I3", "E4", "C1", "B4", "D2", "D1", "C2", "E2", "F2", "B3", "D3", "E3", "C4"], "BTW-11": ["G3", "G2", "A4", "I1", "I2", "A1", "H4", "A3", "A2", "C3", "H3", "B1", "G1", "E1", "H2", "G4", "D4", "I4", "I3", "B2", "F1", "C1", "F4", "B4", "E4", "D2", "D1", "H1", "C2", "E2", "F2", "B3", "D3", "E3", "F3", "C4"], "BTW-13": ["H4", "I1", "H3", "E1", "A4", "I4", "I2", "A3", "A1", "G1", "A2", "F4", "H2", "D4", "I3", "C3", "B1", "F1", "B2", "G4", "C1", "E4", "B4", "D2", "D1", "H1", "C2", "E2", "F2", "G2", "B3", "D3", "E3", "F3", "G3", "C4"], "BTW-15": ["I2", "H3", "I1", "E1", "I3", "A4", "A3", "B2", "G1", "A1", "F4", "D4", "B1", "A2", "I4", "F1", "C3", "G4", "C1", "E4", "B4", "D2", "D1", "H1", "C2", "E2", "F2", "G2", "H2", "B3", "D3", "E3", "F3", "G3", "C4", "H4"]}, "win_values": {"BTW-1": {"A1": [0.0451], "A2": [-0.0037], "A3": [-0.0325], "A4": [0.0518], "B1": [0.0437], "B2": [0.0199], "B3": [0.0818], "B4": [0.0696], "C1": [0.0894], "C2": [0.1553], "C3": [0.1388], "C4": [0.1131], "D1": [0.1558], "D2": [0.1108], "D3": [0.1493], "D4": [0.1456], "E1": [0.1606], "E2": [0.1402], "E3": [0.0991], "E4": [0.0985], "F1": [0.1439], "F2": [0.1337], "F3": [0.0994], "F4": [0.1172], "G1": [0.0736], "G2": [0.1436], "G3": [0.1383], "G4": [0.0735], "H1": [0.0989], "H2": [0.0201], "H3": [0.0461], "H4": [0.0685], "I1": [0.0432], "I2": [0.0008], "I3": [-0.0431], "I4": [0.0249]}, "BTW-3": {"A1": [0.0451, -0.0346], "A2": [-0.0037, -0.0119], "A3": [-0.0325, -0.0348], "A4": [0.0518, -0.0218], "B1": [0.0437, -0.0577], "B2": [0.0199, -0.0077], "B3": [0.0818, 0.1124], "B4": [0.0696, -0.0294], "C1": [0.0894, -0.001], "C2": [0.1553, 0.1987], "C3": [0.1388, 0.1632], "C4": [0.1131, 0.0236], "D1": [0.1558, -1.0], "D2": [0.1108, -0.0753], "D3": [0.1493, -1.0], "D4": [0.1456, -0.1205], "E1": [0.1606, 0.1063], "E2": [0.1402, 0.1844], "E3": [0.0991, 0.1107], "E4": [0.0985, 0.0443], "F1": [0.1439, 0.1058], "F2": [0.1337, 0.1314], "F3": [0.0994, 0.1149], "F4": [0.1172, 0.0871], "G1": [0.0736, 0.0549], "G2": [0.1436, 0.124], "G3": [0.1383, 0.1065], "G4": [0.0735, 0.0348], "H1": [0.0989, 0.0857], "H2": [0.0201, -0.0066], "H3": [0.0461, -0.0024], "H4": [0.0685, 0.057], "I1": [0.0432, 0.0296], "I2": [0.0008, -0.0192], "I3": [-0.0431, -0.0526], "I4": [0.0249, 0.009]}, "BTW-5": {"A1": [0.0451, -0.0346, -0.049], "A2": [-0.0037, -0.0119, -0.0668], "A3": [-0.0325, -0.0348, -0.095], "A4": [0.0518, -0.0218, -0.0343], "B1": [0.0437, -0.0577, -0.0743], "B2": [0.0199, -0.0077, -0.0388], "B3": [0.0818, 0.1124, 0.1044], "B4": [0.0696, -0.0294, -0.0291], "C1": [0.0894, -0.001, -0.1687], "C2": [0.1553, 0.1987, -1.0], "C3": [0.1388, 0.1632, 0.0889], "C4": [0.1131, 0.0236, 0.0517], "D1": [0.1558, -1.0, -1.0], "D2": [0.1108, -0.0753, -0.1929], "D3": [0.1493, -1.0, -1.0], "D4": [0.1456, -0.1205, -0.125], "E1": [0.1606, 0.1063, -0.0935], "E2": [0.1402, 0.1844, -1.0], "E3": [0.0991, 0.1107, 0.064], "E4": [0.0985, 0.0443, 0.0213], "F1": [0.1439, 0.1058, 0.0737], "F2": [0.1337, 0.1314, 0.1234], "F3": [0.0994, 0.1149, -0.0129], "F4": [0.1172, 0.0871, 0.0414], "G1": [0.0736, 0.0549, -0.0041], "G2": [0.1436, 0.124, 0.0638], "G3": [0.1383, 0.1065, 0.0854], "G4": [0.0735, 0.0348, -0.0244], "H1": [0.0989, 0.0857, 0.0515], "H2": [0.0201, -0.0066, -0.0517], "H3": [0.0461, -0.0024, -0.0722], "H4": [0.0685, 0.057, 0.0113], "I1": [0.0432, 0.0296, -0.0169], "I2": [0.0008, -0.0192, -0.0798], "I3": [-0.0431, -0.0526, -0.1314], "I4": [0.0249, 0.009, -0.0555]}, "BTW-7": {"A1": [0.0451, -0.0346, -0.049, -0.1737], "A2": [-0.0037, -0.0119, -0.0668, -0.0883], "A3": [-0.0325, -0.0348, -0.095, -0.1203], "A4": [0.0518, -0.0218, -0.0343, -0.191], "B1": [0.0437, -0.0577, -0.0743, -0.2573], "B2": [0.0199, -0.0077, -0.0388, -0.1044], "B3": [0.0818, 0.1124, 0.1044, 0.0639], "B4": [0.0696, -0.0294, -0.0291, -0.2288], "C1": [0.0894, -0.001, -0.1687, -0.3419], "C2": [0.1553, 0.1987, -1.0, -1.0], "C3": [0.1388, 0.1632, 0.0889, -0.0794], "C4": [0.1131, 0.0236, 0.0517, -1.0], "D1": [0.1558, -1.0, -1.0, -1.0], "D2": [0.1108, -0.0753, -0.1929, -0.2907], "D3": [0.1493, -1.0, -1.0, -1.0], "D4": [0.1456, -0.1205, -0.125, -0.2622], "E1": [0.1606, 0.1063, -0.0935, -0.1751], "E2": [0.1402, 0.1844, -1.0, -1.0], "E3": [0.0991, 0.1107, 0.064, 0.062], "E4": [0.0985, 0.0443, 0.0213, -0.0961], "F1": [0.1439, 0.1058, 0.0737, -0.1147], "F2": [0.1337, 0.1314, 0.1234, -1.0], "F3": [0.0994, 0.1149, -0.0129, -0.0246], "F4": [0.1172, 0.0871, 0.0414, 0.0555], "G1": [0.0736, 0.0549, -0.0041, 0.0404], "G2": [0.1436, 0.124, 0.0638, 0.0158], "G3": [0.1383, 0.1065, 0.0854, 0.062], "G4": [0.0735, 0.0348, -0.0244, 0.0187], "H1": [0.0989, 0.0857, 0.0515, 0.0801], "H2": [0.0201, -0.0066, -0.0517, -0.0849], "H3": [0.0461, -0.0024, -0.0722, -0.1349], "H4": [0.0685, 0.057, 0.0113, 0.0329], "I1": [0.0432, 0.0296, -0.0169, -0.0193], "I2": [0.0008, -0.0192, -0.0798, -0.0922], "I3": [-0.0431, -0.0526, -0.1314, -0.1621], "I4": [0.0249, 0.009, -0.0555, -0.0298]}, "BTW-9": {"A1": [0.0451, -0.0346, -0.049, -0.1737, -0.1799], "A2": [-0.0037, -0.0119, -0.0668, -0.0883, -0.1547], "A3": [-0.0325, -0.0348, -0.095, -0.1203, -0.1268], "A4": [0.0518, -0.0218, -0.0343, -0.191, -0.1551], "B1": [0.0437, -0.0577, -0.0743, -0.2573, -0.2039], "B2": [0.0199, -0.0077, -0.0388, -0.1044, -0.2006], "B3": [0.0818, 0.1124, 0.1044, 0.0639, -1.0], "B4": [0.0696, -0.0294, -0.0291, -0.2288, -0.3465], "C1": [0.0894, -0.001, -0.1687, -0.3419, -0.3089], "C2": [0.1553, 0.1987, -1.0, -1.0, -1.0], "C3": [0.1388, 0.1632, 0.0889, -0.0794, -0.1755], "C4": [0.1131, 0.0236, 0.0517, -1.0, -1.0], "D1": [0.1558, -1.0, -1.0, -1.0, -1.0], "D2": [0.1108, -0.0753, -0.1929, -0.2907, -0.354], "D3": [0.1493, -1.0, -1.0, -1.0, -1.0], "D4": [0.1456, -0.1205, -0.125, -0.2622, -0.2413], "E1": [0.1606, 0.1063, -0.0935, -0.1751, -0.1695], "E2": [0.1402, 0.1844, -1.0, -1.0, -1.0], "E3": [0.0991, 0.1107, 0.064, 0.062, -1.0], "E4": [0.0985, 0.0443, 0.0213, -0.0961, -0.3075], "F1": [0.1439, 0.1058, 0.0737, -0.1147, -0.1772], "F2": [0.1337, 0.1314, 0.1234, -1.0, -1.0], "F3": [0.0994, 0.1149, -0.0129, -0.0246, -0.0677], "F4": [0.1172, 0.0871, 0.0414, 0.0555, -0.0272], "G1": [0.0736, 0.0549, -0.0041, 0.0404, -0.0567], "G2": [0.1436, 0.124, 0.0638, 0.0158, -0.0636], "G3": [0.1383, 0.1065, 0.0854, 0.062, -0.0254], "G4": [0.0735, 0.0348, -0.0244, 0.0187, -0.1081], "H1": [0.0989, 0.0857, 0.0515, 0.0801, -0.0011], "H2": [0.0201, -0.0066, -0.0517, -0.0849, -0.1463], "H3": [0.0461, -0.0024, -0.0722, -0.1349, -0.2106], "H4": [0.0685, 0.057, 0.0113, 0.0329, -0.0579], "I1": [0.0432, 0.0296, -0.0169, -0.0193, -0.0835], "I2": [0.0008, -0.0192, -0.0798, -0.0922, -0.1654], "I3": [-0.0431, -0.0526, -0.1314, -0.1621, -0.2444], "I4": [0.0249, 0.009, -0.0555, -0.0298, -0.1382]}, "BTW-11": {"A1": [0.0451, -0.0346, -0.049, -0.1737, -0.1799, -0.3389], "A2": [-0.0037, -0.0119, -0.0668, -0.0883, -0.1547, -0.3539], "A3": [-0.0325, -0.0348, -0.095, -0.1203, -0.1268, -0.3493], "A4": [0.0518, -0.0218, -0.0343, -0.191, -0.1551, -0.316], "B1": [0.0437, -0.0577, -0.0743, -0.2573, -0.2039, -0.3653], "B2": [0.0199, -0.0077, -0.0388, -0.1044, -0.2006, -0.4322], "B3": [0.0818, 0.1124, 0.1044, 0.0639, -1.0, -1.0], "B4": [0.0696, -0.0294, -0.0291, -0.2288, -0.3465, -0.4705], "C1": [0.0894, -0.001, -0.1687, -0.3419, -0.3089, -0.4346], "C2": [0.1553, 0.1987, -1.0, -1.0, -1.0, -1.0], "C3": [0.1388, 0.1632, 0.0889, -0.0794, -0.1755, -0.3622], "C4": [0.1131, 0.0236, 0.0517, -1.0, -1.0, -1.0], "D1": [0.1558, -1.0, -1.0, -1.0, -1.0, -1.0], "D2": [0.1108, -0.0753, -0.1929, -0.2907, -0.354, -0.5661], "D3": [0.1493, -1.0, -1.0, -1.0, -1.0, -1.0], "D4": [0.1456, -0.1205, -0.125, -0.2622, -0.2413, -0.3934], "E1": [0.1606, 0.1063, -0.0935, -0.1751, -0.1695, -0.3679], "E2": [0.1402, 0.1844, -1.0, -1.0, -1.0, -1.0], "E3": [0.0991, 0.1107, 0.064, 0.062, -1.0, -1.0], "E4": [0.0985, 0.0443, 0.0213, -0.0961, -0.3075, -0.4964], "F1": [0.1439, 0.1058, 0.0737, -0.1147, -0.1772, -0.4329], "F2": [0.1337, 0.1314, 0.1234, -1.0, -1.0, -1.0], "F3": [0.0994, 0.1149, -0.0129, -0.0246, -0.0677, -1.0], "F4": [0.1172, 0.0871, 0.0414, 0.0555, -0.0272, -0.4529], "G1": [0.0736, 0.0549, -0.0041, 0.0404, -0.0567, -0.3678], "G2": [0.1436, 0.124, 0.0638, 0.0158, -0.0636, -0.2598], "G3": [0.1383, 0.1065, 0.0854, 0.062, -0.0254, -0.1044], "G4": [0.0735, 0.0348, -0.0244, 0.0187, -0.1081, -0.3916], "H1": [0.0989, 0.0857, 0.0515, 0.0801, -0.0011, -1.0], "H2": [0.0201, -0.0066, -0.0517, -0.0849, -0.1463, -0.3861], "H3": [0.0461, -0.0024, -0.0722, -0.1349, -0.2106, -0.3646], "H4": [0.0685, 0.057, 0.0113, 0.0329, -0.0579, -0.3402], "I1": [0.0432, 0.0296, -0.0169, -0.0193, -0.0835, -0.3201], "I2": [0.0008, -0.0192, -0.0798, -0.0922, -0.1654, -0.3354], "I3": [-0.0431, -0.0526, -0.1314, -0.1621, -0.2444, -0.4294], "I4": [0.0249, 0.009, -0.0555, -0.0298, -0.1382, -0.3974]}, "BTW-13": {"A1": [0.0451, -0.0346, -0.049, -0.1737, -0.1799, -0.3389, -0.1783], "A2": [-0.0037, -0.0119, -0.0668, -0.0883, -0.1547, -0.3539, -0.1899], "A3": [-0.0325, -0.0348, -0.095, -0.1203, -0.1268, -0.3493, -0.1612], "A4": [0.0518, -0.0218, -0.0343, -0.191, -0.1551, -0.316, -0.1547], "B1": [0.0437, -0.0577, -0.0743, -0.2573, -0.2039, -0.3653, -0.251], "B2": [0.0199, -0.0077, -0.0388, -0.1044, -0.2006, -0.4322, -0.2635], "B3": [0.0818, 0.1124, 0.1044, 0.0639, -1.0, -1.0, -1.0], "B4": [0.0696, -0.0294, -0.0291, -0.2288, -0.3465, -0.4705, -0.3496], "C1": [0.0894, -0.001, -0.1687, -0.3419, -0.3089, -0.4346, -0.3071], "C2": [0.1553, 0.1987, -1.0, -1.0, -1.0, -1.0, -1.0], "C3": [0.1388, 0.1632, 0.0889, -0.0794, -0.1755, -0.3622, -0.2315], "C4": [0.1131, 0.0236, 0.0517, -1.0, -1.0, -1.0, -1.0], "D1": [0.1558, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0], "D2": [0.1108, -0.0753, -0.1929, -0.2907, -0.354, -0.5661, -0.424], "D3": [0.1493, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0], "D4": [0.1456, -0.1205, -0.125, -0.2622, -0.2413, -0.3934, -0.2278], "E1": [0.1606, 0.1063, -0.0935, -0.1751, -0.1695, -0.3679, -0.14], "E2": [0.1402, 0.1844, -1.0, -1.0, -1.0, -1.0, -1.0], "E3": [0.0991, 0.1107, 0.064, 0.062, -1.0, -1.0, -1.0], "E4": [0.0985, 0.0443, 0.0213, -0.0961, -0.3075, -0.4964, -0.3321], "F1": [0.1439, 0.1058, 0.0737, -0.1147, -0.1772, -0.4329, -0.2575], "F2": [0.1337, 0.1314, 0.1234, -1.0, -1.0, -1.0, -1.0], "F3": [0.0994, 0.1149, -0.0129, -0.0246, -0.0677, -1.0, -1.0], "F4": [0.1172, 0.0871, 0.0414, 0.0555, -0.0272, -0.4529, -0.2022], "G1": [0.0736, 0.0549, -0.0041, 0.0404, -0.0567, -0.3678, -0.1829], "G2": [0.1436, 0.124, 0.0638, 0.0158, -0.0636, -0.2598, -1.0], "G3": [0.1383, 0.1065, 0.0854, 0.062, -0.0254, -0.1044, -1.0], "G4": [0.0735, 0.0348, -0.0244, 0.0187, -0.1081, -0.3916, -0.2775], "H1": [0.0989, 0.0857, 0.0515, 0.0801, -0.0011, -1.0, -1.0], "H2": [0.0201, -0.0066, -0.0517, -0.0849, -0.1463, -0.3861, -0.2081], "H3": [0.0461, -0.0024, -0.0722, -0.1349, -0.2106, -0.3646, -0.1093], "H4": [0.0685, 0.057, 0.0113, 0.0329, -0.0579, -0.3402, -0.0692], "I1": [0.0432, 0.0296, -0.0169, -0.0193, -0.0835, -0.3201, -0.0952], "I2": [0.0008, -0.0192, -0.0798, -0.0922, -0.1654, -0.3354, -0.1571], "I3": [-0.0431, -0.0526, -0.1314, -0.1621, -0.2444, -0.4294, -0.2291], "I4": [0.0249, 0.009, -0.0555, -0.0298, -0.1382, -0.3974, -0.1568]}, "BTW-15": {"A1": [0.0451, -0.0346, -0.049, -0.1737, -0.1799, -0.3389, -0.1783, -0.1021], "A2": [-0.0037, -0.0119, -0.0668, -0.0883, -0.1547, -0.3539, -0.1899, -0.1661], "A3": [-0.0325, -0.0348, -0.095, -0.1203, -0.1268, -0.3493, -0.1612, -0.0556], "A4": [0.0518, -0.0218, -0.0343, -0.191, -0.1551, -0.316, -0.1547, -0.0434], "B1": [0.0437, -0.0577, -0.0743, -0.2573, -0.2039, -0.3653, -0.251, -0.1583], "B2": [0.0199, -0.0077, -0.0388, -0.1044, -0.2006, -0.4322, -0.2635, -0.0971], "B3": [0.0818, 0.1124, 0.1044, 0.0639, -1.0, -1.0, -1.0, -1.0], "B4": [0.0696, -0.0294, -0.0291, -0.2288, -0.3465, -0.4705, -0.3496, -0.2736], "C1": [0.0894, -0.001, -0.1687, -0.3419, -0.3089, -0.4346, -0.3071, -0.2363], "C2": [0.1553, 0.1987, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0], "C3": [0.1388, 0.1632, 0.0889, -0.0794, -0.1755, -0.3622, -0.2315, -0.1931], "C4": [0.1131, 0.0236, 0.0517, -1.0, -1.0, -1.0, -1.0, -1.0], "D1": [0.1558, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0], "D2": [0.1108, -0.0753, -0.1929, -0.2907, -0.354, -0.5661, -0.424, -0.3241], "D3": [0.1493, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0], "D4": [0.1456, -0.1205, -0.125, -0.2622, -0.2413, -0.3934, -0.2278, -0.1431], "E1": [0.1606, 0.1063, -0.0935, -0.1751, -0.1695, -0.3679, -0.14, -0.0329], "E2": [0.1402, 0.1844, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0], "E3": [0.0991, 0.1107, 0.064, 0.062, -1.0, -1.0, -1.0, -1.0], "E4": [0.0985, 0.0443, 0.0213, -0.0961, -0.3075, -0.4964, -0.3321, -0.2505], "F1": [0.1439, 0.1058, 0.0737, -0.1147, -0.1772, -0.4329, -0.2575, -0.189], "F2": [0.1337, 0.1314, 0.1234, -1.0, -1.0, -1.0, -1.0, -1.0], "F3": [0.0994, 0.1149, -0.0129, -0.0246, -0.0677, -1.0, -1.0, -1.0], "F4": [0.1172, 0.0871, 0.0414, 0.0555, -0.0272, -0.4529, -0.2022, -0.1025], "G1": [0.0736, 0.0549, -0.0041, 0.0404, -0.0567, -0.3678, -0.1829, -0.1014], "G2": [0.1436, 0.124, 0.0638, 0.0158, -0.0636, -0.2598, -1.0, -1.0], "G3": [0.1383, 0.1065, 0.0854, 0.062, -0.0254, -0.1044, -1.0, -1.0], "G4": [0.0735, 0.0348, -0.0244, 0.0187, -0.1081, -0.3916, -0.2775, -0.2117], "H1": [0.0989, 0.0857, 0.0515, 0.0801, -0.0011, -1.0, -1.0, -1.0], "H2": [0.0201, -0.0066, -0.0517, -0.0849, -0.1463, -0.3861, -0.2081, -1.0], "H3": [0.0461, -0.0024, -0.0722, -0.1349, -0.2106, -0.3646, -0.1093, 0.0978], "H4": [0.0685, 0.057, 0.0113, 0.0329, -0.0579, -0.3402, -0.0692, -1.0], "I1": [0.0432, 0.0296, -0.0169, -0.0193, -0.0835, -0.3201, -0.0952, 0.0213], "I2": [0.0008, -0.0192, -0.0798, -0.0922, -0.1654, -0.3354, -0.1571, 0.1099], "I3": [-0.0431, -0.0526, -0.1314, -0.1621, -0.2444, -0.4294, -0.2291, -0.0428], "I4": [0.0249, 0.009, -0.0555, -0.0298, -0.1382, -0.3974, -0.1568, -0.1794]}}}, {"GameNum": 9, "goes-first": "X", "winner": "X", "max_moves": 9, "x-moves": ["D1", "F2", "E2", "D2", "G2"], "o-moves": ["D3", "E3", "C3", "C2"], "win_sequence": ["D2", "E2", "F2", "G2"], "game_summary": "wins horizontally on move 9", "BTW-arrays": {"BTW-1": ["E1", "D1", "F1", "D4", "C4", "F4", "H1", "C2", "H4", "C1", "E4", "G2", "E2", "F2", "G1", "B4", "G4", "D2", "A4", "B1", "A1", "I1", "C3", "G3", "I4", "D3", "H2", "B2", "E3", "I2", "B3", "F3", "A2", "H3", "I3", "A3"], "BTW-3": ["C2", "F2", "E2", "F1", "E1", "H1", "H4", "F4", "G1", "B2", "G2", "C3", "E4", "G4", "I1", "C4", "I4", "C1", "G3", "H2", "B3", "I2", "A4", "A2", "E3", "B4", "B1", "A1", "I3", "A3", "F3", "H3", "D4", "D2", "D1", "D3"], "BTW-5": ["E2", "C2", "E1", "H1", "H4", "H2", "F4", "G1", "G2", "G3", "C1", "C4", "I1", "G4", "B2", "A4", "I4", "A2", "B1", "I2", "F1", "A1", "B4", "A3", "F3", "I3", "B3", "C3", "H3", "D4", "E4", "D2", "D1", "F2", "D3", "E3"], "BTW-7": ["D2", "C2", "G2", "F3", "H2", "H1", "F4", "G1", "H4", "C1", "G3", "A2", "I1", "B2", "E1", "G4", "I4", "I2", "A4", "B1", "F1", "I3", "A1", "A3", "B4", "B3", "H3", "C4", "E4", "D4", "D1", "E2", "F2", "C3", "D3", "E3"], "BTW-9": ["G2", "B1", "H2", "A4", "D4", "H1", "B4", "B2", "F4", "C1", "I1", "G1", "H4", "A1", "F1", "G4", "I2", "G3", "B3", "F3", "E1", "A2", "I4", "I3", "C4", "A3", "H3", "E4", "D1", "C2", "D2", "E2", "F2", "C3", "D3", "E3"]}, "win_values": {"BTW-1": {"A1": [0.1342], "A2": [0.041], "A3": [-0.0162], "A4": [0.1461], "B1": [0.1442], "B2": [0.0765], "B3": [0.065], "B4": [0.1657], "C1": [0.1929], "C2": [0.2], "C3": [0.121], "C4": [0.2155], "D1": [0.265], "D2": [0.1601], "D3": [0.1144], "D4": [0.2424], "E1": [0.269], "E2": [0.1829], "E3": [0.0765], "E4": [0.1929], "F1": [0.2464], "F2": [0.1798], "F3": [0.0626], "F4": [0.2045], "G1": [0.174], "G2": [0.1877], "G3": [0.1158], "G4": [0.1619], "H1": [0.2028], "H2": [0.0779], "H3": [0.0047], "H4": [0.1942], "I1": [0.1297], "I2": [0.0664], "I3": [-0.0006], "I4": [0.1152]}, "BTW-3": {"A1": [0.1342, 0.0993], "A2": [0.041, 0.1128], "A3": [-0.0162, 0.0628], "A4": [0.1461, 0.1255], "B1": [0.1442, 0.1021], "B2": [0.0765, 0.2274], "B3": [0.065, 0.1298], "B4": [0.1657, 0.1071], "C1": [0.1929, 0.1558], "C2": [0.2, 0.3442], "C3": [0.121, 0.2092], "C4": [0.2155, 0.1749], "D1": [0.265, -1.0], "D2": [0.1601, -0.115], "D3": [0.1144, -1.0], "D4": [0.2424, -0.0192], "E1": [0.269, 0.2818], "E2": [0.1829, 0.3081], "E3": [0.0765, 0.1121], "E4": [0.1929, 0.2021], "F1": [0.2464, 0.2843], "F2": [0.1798, 0.3339], "F3": [0.0626, 0.0435], "F4": [0.2045, 0.2334], "G1": [0.174, 0.2309], "G2": [0.1877, 0.2127], "G3": [0.1158, 0.1447], "G4": [0.1619, 0.2008], "H1": [0.2028, 0.2651], "H2": [0.0779, 0.1346], "H3": [0.0047, 0.0366], "H4": [0.1942, 0.2497], "I1": [0.1297, 0.1827], "I2": [0.0664, 0.1267], "I3": [-0.0006, 0.0639], "I4": [0.1152, 0.171]}, "BTW-5": {"A1": [0.1342, 0.0993, 0.0222], "A2": [0.041, 0.1128, 0.0387], "A3": [-0.0162, 0.0628, -0.0167], "A4": [0.1461, 0.1255, 0.0641], "B1": [0.1442, 0.1021, 0.0382], "B2": [0.0765, 0.2274, 0.0794], "B3": [0.065, 0.1298, -0.0433], "B4": [0.1657, 0.1071, 0.0098], "C1": [0.1929, 0.1558, 0.0941], "C2": [0.2, 0.3442, 0.2658], "C3": [0.121, 0.2092, -0.0441], "C4": [0.2155, 0.1749, 0.0914], "D1": [0.265, -1.0, -1.0], "D2": [0.1601, -0.115, -0.4536], "D3": [0.1144, -1.0, -1.0], "D4": [0.2424, -0.0192, -0.0874], "E1": [0.269, 0.2818, 0.2568], "E2": [0.1829, 0.3081, 0.4855], "E3": [0.0765, 0.1121, -1.0], "E4": [0.1929, 0.2021, -0.1601], "F1": [0.2464, 0.2843, 0.0256], "F2": [0.1798, 0.3339, -1.0], "F3": [0.0626, 0.0435, -0.0219], "F4": [0.2045, 0.2334, 0.1504], "G1": [0.174, 0.2309, 0.1442], "G2": [0.1877, 0.2127, 0.1417], "G3": [0.1158, 0.1447, 0.1065], "G4": [0.1619, 0.2008, 0.082], "H1": [0.2028, 0.2651, 0.1925], "H2": [0.0779, 0.1346, 0.1557], "H3": [0.0047, 0.0366, -0.0694], "H4": [0.1942, 0.2497, 0.1597], "I1": [0.1297, 0.1827, 0.0872], "I2": [0.0664, 0.1267, 0.0357], "I3": [-0.0006, 0.0639, -0.0235], "I4": [0.1152, 0.171, 0.0572]}, "BTW-7": {"A1": [0.1342, 0.0993, 0.0222, 0.0015], "A2": [0.041, 0.1128, 0.0387, 0.1166], "A3": [-0.0162, 0.0628, -0.0167, -0.0004], "A4": [0.1461, 0.1255, 0.0641, 0.0399], "B1": [0.1442, 0.1021, 0.0382, 0.0252], "B2": [0.0765, 0.2274, 0.0794, 0.0971], "B3": [0.065, 0.1298, -0.0433, -0.0061], "B4": [0.1657, 0.1071, 0.0098, -0.0016], "C1": [0.1929, 0.1558, 0.0941, 0.1204], "C2": [0.2, 0.3442, 0.2658, 0.3268], "C3": [0.121, 0.2092, -0.0441, -1.0], "C4": [0.2155, 0.1749, 0.0914, -0.1489], "D1": [0.265, -1.0, -1.0, -1.0], "D2": [0.1601, -0.115, -0.4536, 0.3736], "D3": [0.1144, -1.0, -1.0, -1.0], "D4": [0.2424, -0.0192, -0.0874, -0.2225], "E1": [0.269, 0.2818, 0.2568, 0.0952], "E2": [0.1829, 0.3081, 0.4855, -1.0], "E3": [0.0765, 0.1121, -1.0, -1.0], "E4": [0.1929, 0.2021, -0.1601, -0.2223], "F1": [0.2464, 0.2843, 0.0256, 0.0084], "F2": [0.1798, 0.3339, -1.0, -1.0], "F3": [0.0626, 0.0435, -0.0219, 0.2915], "F4": [0.2045, 0.2334, 0.1504, 0.1774], "G1": [0.174, 0.2309, 0.1442, 0.1654], "G2": [0.1877, 0.2127, 0.1417, 0.3259], "G3": [0.1158, 0.1447, 0.1065, 0.1189], "G4": [0.1619, 0.2008, 0.082, 0.0486], "H1": [0.2028, 0.2651, 0.1925, 0.2033], "H2": [0.0779, 0.1346, 0.1557, 0.2242], "H3": [0.0047, 0.0366, -0.0694, -0.1197], "H4": [0.1942, 0.2497, 0.1597, 0.1598], "I1": [0.1297, 0.1827, 0.0872, 0.1044], "I2": [0.0664, 0.1267, 0.0357, 0.04], "I3": [-0.0006, 0.0639, -0.0235, 0.0078], "I4": [0.1152, 0.171, 0.0572, 0.0479]}, "BTW-9": {"A1": [0.1342, 0.0993, 0.0222, 0.0015, 0.1211], "A2": [0.041, 0.1128, 0.0387, 0.1166, 0.0373], "A3": [-0.0162, 0.0628, -0.0167, -0.0004, -0.0401], "A4": [0.1461, 0.1255, 0.0641, 0.0399, 0.2808], "B1": [0.1442, 0.1021, 0.0382, 0.0252, 0.2957], "B2": [0.0765, 0.2274, 0.0794, 0.0971, 0.1907], "B3": [0.065, 0.1298, -0.0433, -0.0061, 0.0703], "B4": [0.1657, 0.1071, 0.0098, -0.0016, 0.2279], "C1": [0.1929, 0.1558, 0.0941, 0.1204, 0.1636], "C2": [0.2, 0.3442, 0.2658, 0.3268, -1.0], "C3": [0.121, 0.2092, -0.0441, -1.0, -1.0], "C4": [0.2155, 0.1749, 0.0914, -0.1489, -0.0164], "D1": [0.265, -1.0, -1.0, -1.0, -1.0], "D2": [0.1601, -0.115, -0.4536, 0.3736, -1.0], "D3": [0.1144, -1.0, -1.0, -1.0, -1.0], "D4": [0.2424, -0.0192, -0.0874, -0.2225, 0.2347], "E1": [0.269, 0.2818, 0.2568, 0.0952, 0.0547], "E2": [0.1829, 0.3081, 0.4855, -1.0, -1.0], "E3": [0.0765, 0.1121, -1.0, -1.0, -1.0], "E4": [0.1929, 0.2021, -0.1601, -0.2223, -0.1566], "F1": [0.2464, 0.2843, 0.0256, 0.0084, 0.1198], "F2": [0.1798, 0.3339, -1.0, -1.0, -1.0], "F3": [0.0626, 0.0435, -0.0219, 0.2915, 0.0676], "F4": [0.2045, 0.2334, 0.1504, 0.1774, 0.1835], "G1": [0.174, 0.2309, 0.1442, 0.1654, 0.1446], "G2": [0.1877, 0.2127, 0.1417, 0.3259, 0.5548], "G3": [0.1158, 0.1447, 0.1065, 0.1189, 0.0914], "G4": [0.1619, 0.2008, 0.082, 0.0486, 0.1073], "H1": [0.2028, 0.2651, 0.1925, 0.2033, 0.2326], "H2": [0.0779, 0.1346, 0.1557, 0.2242, 0.2918], "H3": [0.0047, 0.0366, -0.0694, -0.1197, -0.1012], "H4": [0.1942, 0.2497, 0.1597, 0.1598, 0.137], "I1": [0.1297, 0.1827, 0.0872, 0.1044, 0.153], "I2": [0.0664, 0.1267, 0.0357, 0.04, 0.0997], "I3": [-0.0006, 0.0639, -0.0235, 0.0078, 0.022], "I4": [0.1152, 0.171, 0.0572, 0.0479, 0.0323]}}}]};
+
+// ============================================================
+// EMBEDDED IMAGES
+// ============================================================
+const IMG_X = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAACXBIWXMAAAsTAAALEwEAmpwYAAAB50lEQVR4nO2dQW7CQBAE503JwfyM3Mgxn03kH3SkJJaQDAgTYGZ6q84c7Kpd2V6vcAQAAAAAAAAAAAB0Q28RmsIeTb/nWgq9R0gRmiO0C1v0GqGvv3P9iGLy5R1Bx/JVJMJKvmkEnZKfHeGsfLMIuiQ/K8LPBffSAR1HmJpfcOcrz/WZF2a9ROhzQ4Sd6chX4kBzjqDq8p0jqIt8xwjqJt8pgrrKd4ig7vI7R5CL/I4R5Ca/UwS5yu8QQe7yK0fQKPIrRtBo8itF0KjyK0TQ6PIzIwj5eRGE/LwIQn5eBCE/L4KQnxdByM+LIOTnRRDy8yII+Yl7ceaNv3V9wk2dCUJ+7QgzIz8vwoz8vJkwIz8vwoz8u6Itt5obli3gEfKJUEC+mAn58kWEfPkiwnb5E0sRaeiGhbUKW14s0D9WNYmQKH+BCDeiO67nEyFR/gIRruSRb7KIkCh/gQhneOY7XHGLmid/gQiLiMTdCxp9JlTYOqJRI1SQP2yESvKHi1BR/jARKsu3j9BBvm2ETvLtInSUbxOhs/z2ERzkt43gJL9dBEf5bSI4y28Rgb8ujnWEZ39TQHvPkX/TTDhEDmcjmMi/KsIh++D23vIvRsiWv4pgKv9khCryF/iIDwAAAAAAAAAAAERdvgEZn5JjeCD2EwAAAABJRU5ErkJggg==';
+const IMG_O = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAACXBIWXMAAAsTAAALEwEAmpwYAAAGLUlEQVR4nO2dW4hVVRjHf0JeQk3HC6VFoYGk6IuJFFFETppmFnRBfFMqUtMuTxnZYJBWkqFp16eSxER6D8HoRcHwGjR5rezBy3jrqZEc/7GaNSLSnLX2nH1Ze+/1gw/keIbvss9Zl2996zsQiUQikUgkEolEIgEhGC2YKVgm2CTYITgkOC64ILhs5YJ97ZB9z0bBy/ZvRxXtR2kQ3Cx4QvCR4KDgqkBNSpfggGCdYK5gUNF+BofgXsF6wbkUAu6SS4KvBa2CftQVwQDBC4KjOQS9NzkieN7YQs2GmVcEfxYY+BvlpJ1nqj08CR4RtAcQcPUixwRzqBqCOwTfBRBgecp2we1UAbuqOR9AUNWHyfppSj7JrkthKXlKsE3QJpgvmCoYJ2gR9LfSYl+bat/TZv/mVJO6je1rjQ7KhGC44McmHN9lJ8VJKdgySbBcsLsJe34QDKMMCMbYTVRSJy8KVgsmZGjbBMEaqyupffsFtxEygrsFJxI6dlawQnBLjnYOE7wp6Ehoq0l3jCdEBGMTBr/L7khHFTxUmh34lQR2Gx/HEBLWkSTDzi+CaQSCYHrC/cn+YOYEu9pJMuF+JRhMYAiGCDYn8GOn4KYQDP/Q02DzNX+JwBEsSTAkvVe0sY97rvM7Bc9SEgRPCv728Mv4Pq/I9ILPDtc4MoOSoe50daeHf2YlNbYIA31yO+ar/AwlRTBP8I+Hn1vzNmyO5xgZ/JjvQrDU09dHyTGff8xntUNFkN/q6LBgYB7GvOppzFAqgmCw3bu4/F6atSEDPU6yukLaZKW8Wety+P5HpplTwYsen4JNVBTB5x7+L8pKeT97iO1KrLVQUQQjPCo3fs2k2kLwkMfTf4OKI3jLIw4PZKH4S48jvOFUHHWnsl3nCZ9lsfS85FC6hpogeN8Ri4uplrjYg3XX1y6zk6zQENzjEY/0yltsrWYjZbuoGYI9jpisTVOZ67BlGTVD8JojJvvSLBF3pZwnUjMEkx0xMZu2kWkomuVQdLqOVcbq3heddsSmNQ1FyxxKvqWmqLuEMdvckL2Z0kjJ29QUwSpHbDakoWSHQ8l8aopggSM236eh5GeHkqnUFME0R2wOpqHkd4eSO6kp6i4IbhSbE2kocR28j6CmCEY5YtORhpLLDiX1uV/1/wdUjWLTSbPEB1D8A4hDUMFDkGsSvouaopwmYXP9Py5DC1yGxo1YwRuxjQ4lbdQUwTuO2KzPIxm3jZqinJJxMx1KzsR0NL3FZkZaSy1XRVjT10nLhmCKIyZdqWUJbL+dRsqWUzMErztisjdNZescynZTMwQ/OWLyQZrK5jqU1a0sZaJHPGanqXCQRzVYLMziWiwupH5XQPCF4wHE0kSuxeKTVINvH8CDHl+7FVQcwUqPONyfVRnGYY8bg5U9oBGM9MgOt2dWpmMb3Lme/qdUFLkrxI0szLotwUmPDch0KobgPo8N6W+ZN3eyzY9cn4IjFbukN8SzmcfiPIwZ5NnrczMVQfCNh7/tuZ2PCx7zMMjIEkqO3NngHpkRWiq2Zz4oTZOOXpp2+HRO2ULemL6anr2eO1OpEg63WcfZwjpo2Z4RPu1qTG3Rc5QEwVOe7WrMN3xW0cau9Rwjr2R+lT+9Md+13OyR1SEY3N/21fQx+L/VkVnWERiCoZ6rnR7ZEUTLsuvuzroObW5csk0nrE2WK81yvewNbp9j75IlceKqbVs5ukCbW/rQtvJ4sA1cTVNTa6ASyDl7/X94zm02V/ahqbjpkzSOkDGfDttXUwnlkulCaC5BZ3ySZW65/9UH+8ywcytlwM4JO/vgpKzssfdwJzeT2rUp9Cn2AN11huuacMMa812YFYL9RDfbvv6M3XWvsqWA0+xQN8JmZwfYf4+3/7fAVqxtt3/bjG6zHH03mNVOXzA5Eo/7tApQOlI9WA+gsffWAIIqT9kSXIPuNBA87Nn8TgXJ0cJTCzld61lqG9wpEDGXUBbX6r6bnTwXJdy8pS2mv9vC0v1GTIY/ZdiRQ9BNgVn8KcMGx51zbEv8fQmyko2ky26iTNZ2di7dbStWh9Nq54yPzZUfm/Q7btMIPT9ne96+dsC+Z4P9HYDWKtcpRSKRSCQSiUQiEUrJv/cXEq/60XY0AAAAAElFTkSuQmCC';
+const IMG_BACK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAR5JREFUaEPt2OsNwjAMBODrZKwCm8AGMAGwISMgS4CqqK/E50dF8qcSUpP7bEttGbDzNew8PzoguoO9A70Dygr0EVop4BHAAcBJWejZ2y07IOHvn5MfVggrwDi8GJ4A5Df6sgC4hZdqsAGu4dkA9/BMQEh4FiAsPAMQGl4LCA+vAaQI3wpIE74FkCp8LSBd+BpAGf4F4Ep/sZne8LJ0zpZXiTK8U+7fMYsZ/wIgpZgaoZtTK87aEfreXyLMPlJqCrNlhMb7pUPUAqbGKbQTLYBUiFZAGoQGkAKhBYQjGIBQBAsQhmACQhBsgDvCAuCKsAKUCPl3Wp7Y9GUJ+CLkahK+5ouMXjnWhtYdYOWc3acDzEu8ckDvQO+AsgK7H6E3fJY+Ma29iMEAAAAASUVORK5CYII=';
+const IMG_FOR  = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAATBJREFUaEPtmNENwjAMRK8bsAlswCjABDACmwCTsAIbgSzxESGVOrXPbiX3O03e8+Xj2gErf4aV86MEshOsBCoB4wTqCk0M8AhgD+BkHPTo68wEBP72PfnOkmAKCPShGR1Fgikg7HQJtgBdIkKAKhElQJOIFKBIRAu4S2QIuEpkCbhJZAq4SGQLmCWWIGCS0AhcAbxZbbLZ9wJg09udNAIR8GPzmSyASxd4AJBabvoekCvEfuTqnH8OmYSX9ZoEIuCfAHbNQSr4JQjI5GfDZwuY4TMFXOCzBNzgMwRc4aMF3OEjBSjwUQI0+AgBKjxbgA7PFngB2M6pBz3dhdmF2p+76m7TA89OQPaXjxQpaX8rcS90u56ZgIVL/W4JqEdFWlgJkAar3rYSUI+KtHD1CXwAkW0/MZ2kW18AAAAASUVORK5CYII=';
+
+
+
+// ============================================================
+// TUTORIAL DATA
+// ============================================================
+const TUTORIAL_GAMES = [{"GameNum": "T1", "goes-first": "X", "winner": "X", "max_moves": 7, "x-moves": ["D2", "E2", "F2", "G2"], "o-moves": ["B3", "C3", "D3"], "win_sequence": ["D2", "E2", "F2", "G2"], "game_summary": "Tutorial Game 1", "BTW-arrays": {"BTW-1": ["D2", "G4", "G3", "G1", "B4", "A3", "D4", "C3", "E1", "E4", "D3", "F1", "F2", "A1", "C4", "I2", "I4", "G2", "F4", "C2", "I1", "H4", "E3", "H3", "C1", "D1", "H2", "B2", "E2", "F3", "A4", "I3", "H1", "A2", "B1", "B3"], "BTW-3": ["E2", "G3", "I4", "I2", "C1", "B4", "A1", "C4", "D3", "E1", "A4", "A3", "H3", "B1", "D1", "I3", "F3", "F2", "D2", "B3", "F4", "H1", "C2", "G4", "H2", "A2", "D4", "G1", "H4", "G2", "C3", "E3", "B2", "I1", "F1", "E4"], "BTW-5": ["F2", "B1", "H3", "G1", "G3", "C1", "I4", "H1", "D3", "D4", "C4", "A2", "B2", "G4", "G2", "E1", "A4", "F4", "A1", "B3", "C3", "D2", "E2", "I2", "E3", "I1", "H4", "D1", "F1", "C2", "E4", "I3", "B4", "F3", "A3", "H2"], "BTW-7": ["G2", "E1", "A4", "C2", "I4", "H1", "B1", "C4", "I2", "F4", "F3", "H2", "E3", "A2", "H3", "F1", "A1", "G1", "I3", "B2", "E2", "C3", "G3", "E4", "H4", "G4", "D1", "D3", "D2", "D4", "A3", "B3", "F2", "B4", "C1", "I1"]}, "win_values": {"BTW-1": {"A1": [0.1796], "B1": [-0.2812], "C1": [-0.0937], "D1": [-0.1326], "E1": [0.2524], "F1": [0.2075], "G1": [0.3691], "H1": [-0.2348], "I1": [0.0164], "A2": [-0.2777], "B2": [-0.136], "C2": [0.079], "D2": [0.458], "E2": [-0.1509], "F2": [0.1874], "G2": [0.1087], "H2": [-0.1347], "I2": [0.1419], "A3": [0.3071], "B3": [-0.2951], "C3": [0.3044], "D3": [0.2236], "E3": [-0.0448], "F3": [-0.1834], "G3": [0.4179], "H3": [-0.0476], "I3": [-0.2304], "A4": [-0.2275], "B4": [0.3356], "C4": [0.1528], "D4": [0.3053], "E4": [0.2473], "F4": [0.1022], "G4": [0.4298], "H4": [-0.0161], "I4": [0.114]}, "BTW-3": {"A1": [0.3221, 0.3673], "B1": [0.1639, 0.1417], "C1": [0.3463, 0.365], "D1": [0.133, 0.1205], "E1": [0.2284, 0.2781], "F1": [-0.2656, -0.2705], "G1": [-0.1291, -0.1573], "H1": [-0.083, -0.1134], "I1": [-0.2402, -0.2328], "A2": [-0.1254, -0.1539], "B2": [-0.2242, -0.214], "C2": [-0.0915, -0.0438], "D2": [-0.0229, -0.035], "E2": [0.5594, 0.5257], "F2": [-0.0224, 0.0373], "G2": [-0.1429, -0.1418], "H2": [-0.0998, -0.1489], "I2": [0.4025, 0.3482], "A3": [0.186, 0.1392], "B3": [-0.0282, -0.0129], "C3": [-0.1716, -0.1366], "D3": [0.2468, 0.2375], "E3": [-0.1774, -0.2298], "F3": [-0.0154, -0.0296], "G3": [0.4421, 0.5016], "H3": [0.18, 0.1835], "I3": [0.1177, 0.1742], "A4": [0.2135, 0.2568], "B4": [0.3321, 0.2735], "C4": [0.282, 0.3085], "D4": [-0.1282, -0.1064], "E4": [-0.2759, -0.2715], "F4": [-0.0634, -0.0914], "G4": [-0.0992, -0.0823], "H4": [-0.1418, -0.1884], "I4": [0.4072, 0.3994]}, "BTW-5": {"A1": [0.0403, 0.0311, -0.0035], "B1": [0.4154, 0.4201, 0.4477], "C1": [0.3569, 0.321, 0.2984], "D1": [-0.1025, -0.0431, -0.0251], "E1": [0.0754, 0.068, 0.0701], "F1": [-0.166, -0.2115, -0.2445], "G1": [0.3845, 0.3651, 0.3757], "H1": [0.3529, 0.3205, 0.2869], "I1": [-0.0762, -0.1277, -0.112], "A2": [0.1792, 0.1467, 0.1954], "B2": [0.1567, 0.1999, 0.1484], "C2": [-0.1854, -0.2168, -0.1965], "D2": [0.0025, -0.0318, -0.0759], "E2": [-0.0421, 0.0102, 0.0187], "F2": [0.6836, 0.6803, 0.7145], "G2": [0.0978, 0.1347, 0.0975], "H2": [-0.2996, -0.348, -0.3563], "I2": [-0.0569, -0.0661, -0.0701], "A3": [-0.2854, -0.2579, -0.2371], "B3": [0.0358, 0.0939, 0.0457], "C3": [0.0257, 0.014, -0.0053], "D3": [0.3237, 0.3671, 0.3369], "E3": [-0.0694, -0.1066, -0.1128], "F3": [-0.2566, -0.266, -0.2926], "G3": [0.3585, 0.3285, 0.3793], "H3": [0.4102, 0.4034, 0.4468], "I3": [-0.2358, -0.2298, -0.2837], "A4": [0.0645, 0.1244, 0.1647], "B4": [-0.2481, -0.1918, -0.1406], "C4": [0.2705, 0.3123, 0.2723], "D4": [0.2744, 0.2727, 0.2383], "E4": [-0.2037, -0.2156, -0.2686], "F4": [0.0565, 0.042, 0.1002], "G4": [0.1124, 0.0842, 0.1183], "H4": [-0.1012, -0.1066, -0.1158], "I4": [0.3543, 0.4092, 0.4687]}, "BTW-7": {"A1": [0.1168, 0.0655, 0.0605, 0.1203], "B1": [0.2388, 0.2983, 0.2471, 0.2127], "C1": [-0.1839, -0.2121, -0.1601, -0.1144], "D1": [-0.0775, -0.032, -0.0477, -0.0888], "E1": [0.4265, 0.4665, 0.4909, 0.5043], "F1": [0.1344, 0.1929, 0.2114, 0.1523], "G1": [0.1066, 0.1447, 0.1206, 0.1402], "H1": [0.261, 0.3137, 0.2698, 0.2237], "I1": [-0.2571, -0.3043, -0.2979, -0.3252], "A2": [0.1381, 0.1507, 0.1768, 0.1412], "B2": [0.0771, 0.0932, 0.0649, 0.0635], "C2": [0.3395, 0.3881, 0.4296, 0.3807], "D2": [-0.1185, -0.1277, -0.1545, -0.2141], "E2": [0.0422, 0.0747, 0.0912, 0.0626], "F2": [-0.134, -0.1051, -0.0989, -0.1076], "G2": [0.5057, 0.4469, 0.3959, 0.4419], "H2": [0.1463, 0.1948, 0.2003, 0.2405], "I2": [0.2064, 0.2163, 0.1741, 0.1294], "A3": [-0.1236, -0.1466, -0.0987, -0.0632], "B3": [-0.126, -0.0827, -0.0348, -0.0696], "C3": [0.0281, -0.002, -0.0497, -0.0161], "D3": [-0.1008, -0.0547, -0.0659, -0.0514], "E3": [0.1459, 0.1044, 0.156, 0.1998], "F3": [0.1645, 0.2216, 0.2589, 0.3047], "G3": [0.0144, -0.0426, -0.0142, -0.0343], "H3": [0.1378, 0.1895, 0.2258, 0.2695], "I3": [0.0921, 0.1294, 0.1014, 0.1359], "A4": [0.401, 0.354, 0.3987, 0.4417], "B4": [-0.1468, -0.1801, -0.1421, -0.1469], "C4": [0.2371, 0.2137, 0.2491, 0.2164], "D4": [-0.121, -0.1782, -0.215, -0.2356], "E4": [-0.0032, 0.0405, 0.0965, 0.07], "F4": [0.2038, 0.2208, 0.2088, 0.2665], "G4": [-0.075, -0.0707, -0.018, -0.0642], "H4": [-0.0629, -0.0065, -0.0451, 0.0104], "I4": [0.2639, 0.2358, 0.1888, 0.1809]}}}, {"GameNum": "T2", "goes-first": "O", "winner": "X", "max_moves": 8, "x-moves": ["D3", "E3", "F3", "G3"], "o-moves": ["A1", "B1", "A2", "B2"], "win_sequence": ["D3", "E3", "F3", "G3"], "game_summary": "Tutorial Game 2", "BTW-arrays": {"BTW-2": ["D3", "B4", "A2", "D4", "B3", "D2", "C3", "C2", "H1", "C4", "E2", "H2", "E4", "C1", "F1", "G4", "B2", "D1", "A4", "F3", "G3", "A1", "E1", "F2", "I2", "A3", "B1", "E3", "F4", "H3", "I4", "G1", "I3", "G2", "I1", "H4"], "BTW-4": ["E3", "H1", "F2", "I1", "G4", "G2", "F4", "A4", "H2", "D4", "C1", "D2", "H3", "C2", "B4", "G1", "D1", "E1", "I4", "G3", "B1", "E2", "D3", "A1", "C3", "C4", "I2", "F1", "A3", "I3", "A2", "H4", "B2", "F3", "B3", "E4"], "BTW-6": ["F3", "I2", "H1", "B2", "H2", "C2", "G2", "B3", "A4", "F4", "I1", "I4", "C3", "D1", "D4", "G3", "G1", "A3", "E1", "C1", "B4", "H4", "A1", "A2", "D2", "D3", "F2", "I3", "E3", "B1", "F1", "C4", "E4", "H3", "G4", "E2"], "BTW-8": ["G3", "I1", "B3", "F1", "F2", "G1", "I2", "E4", "A4", "D1", "H3", "C3", "H4", "B4", "C4", "C2", "D4", "I3", "F3", "C1", "D2", "A1", "A3", "B1", "B2", "I4", "D3", "E1", "A2", "G4", "H2", "E3", "G2", "F4", "H1", "E2"]}, "win_values": {"BTW-2": {"A1": [-0.0043], "B1": [-0.0647], "C1": [0.1547], "D1": [0.0836], "E1": [-0.0111], "F1": [0.1324], "G1": [-0.109], "H1": [0.2316], "I1": [-0.2987], "A2": [0.3942], "B2": [0.1038], "C2": [0.2396], "D2": [0.2565], "E2": [0.203], "F2": [-0.0268], "G2": [-0.2475], "H2": [0.1982], "I2": [-0.0523], "A3": [-0.0646], "B3": [0.336], "C3": [0.2398], "D3": [0.5401], "E3": [-0.068], "F3": [0.0063], "G3": [0.0018], "H3": [-0.0783], "I3": [-0.2045], "A4": [0.0153], "B4": [0.4053], "C4": [0.208], "D4": [0.3771], "E4": [0.1616], "F4": [-0.0743], "G4": [0.111], "H4": [-0.2997], "I4": [-0.0848]}, "BTW-4": {"A1": [-0.064, -0.1029], "B1": [-0.034, 0.021], "C1": [0.191, 0.1932], "D1": [0.0487, -0.0053], "E1": [0.0316, 0.0015], "F1": [-0.1397, -0.0979], "G1": [0.0549, 0.0497], "H1": [0.3759, 0.4121], "I1": [0.297, 0.3171], "A2": [-0.1727, -0.1142], "B2": [-0.2364, -0.2249], "C2": [0.0866, 0.1406], "D2": [0.1747, 0.2217], "E2": [-0.0486, -0.0351], "F2": [0.3138, 0.3401], "G2": [0.2634, 0.264], "H2": [0.2046, 0.2443], "I2": [-0.1315, -0.1258], "A3": [-0.1507, -0.103], "B3": [-0.2817, -0.2525], "C3": [-0.1164, -0.1194], "D3": [-0.055, -0.0839], "E3": [0.7049, 0.6746], "F3": [-0.2454, -0.2289], "G3": [0.0108, 0.0427], "H3": [0.1723, 0.1749], "I3": [-0.1542, -0.139], "A4": [0.2223, 0.1953], "B4": [0.0708, 0.0201], "C4": [-0.117, -0.1427], "D4": [0.192, 0.1646], "E4": [-0.2958, -0.3174], "F4": [0.2632, 0.268], "G4": [0.2775, 0.2341], "H4": [-0.2201, -0.2523], "I4": [0.0189, 0.0422]}, "BTW-6": {"A1": [-0.0087, -0.0654, -0.0483], "B1": [-0.1372, -0.1809, -0.1855], "C1": [0.0057, -0.0483, -0.0628], "D1": [0.107, 0.0724, 0.0516], "E1": [0.0118, 0.0431, 0.0286], "F1": [-0.1449, -0.1147, -0.0749], "G1": [0.0151, -0.0146, -0.0648], "H1": [0.3786, 0.3209, 0.3256], "I1": [0.1381, 0.1981, 0.1801], "A2": [-0.0109, 0.0071, 0.0408], "B2": [0.3425, 0.3607, 0.3912], "C2": [0.2742, 0.3282, 0.2921], "D2": [-0.0147, -0.0723, -0.114], "E2": [-0.2956, -0.3405, -0.3202], "F2": [-0.0362, -0.0285, -0.0623], "G2": [0.2651, 0.289, 0.321], "H2": [0.3401, 0.3002, 0.3131], "I2": [0.4151, 0.4449, 0.3986], "A3": [0.0143, 0.0526, 0.1084], "B3": [0.2606, 0.2136, 0.1567], "C3": [0.1096, 0.087, 0.1083], "D3": [-0.0293, 0.0257, 0.0133], "E3": [-0.1059, -0.0801, -0.131], "F3": [0.5158, 0.5387, 0.554], "G3": [0.0269, -0.0209, 0.0118], "H3": [-0.2782, -0.2362, -0.2242], "I3": [-0.0479, -0.0934, -0.0353], "A4": [0.2094, 0.2433, 0.225], "B4": [0.0032, -0.0054, -0.0209], "C4": [-0.1762, -0.1755, -0.1946], "D4": [0.0505, 0.0924, 0.1311], "E4": [-0.2043, -0.2516, -0.1963], "F4": [0.1667, 0.183, 0.2224], "G4": [-0.2798, -0.2549, -0.2626], "H4": [-0.0045, 0.0236, 0.0795], "I4": [0.1233, 0.0957, 0.1327]}, "BTW-8": {"A1": [-0.0424, -0.0326, -0.0358, -0.0321], "B1": [-0.0533, -0.0622, -0.0327, -0.053], "C1": [0.0267, 0.051, 0.0235, -0.0063], "D1": [0.2483, 0.2028, 0.1659, 0.1202], "E1": [-0.0987, -0.0944, -0.0629, -0.1007], "F1": [0.3388, 0.3048, 0.3029, 0.3299], "G1": [0.323, 0.3802, 0.3832, 0.3572], "H1": [-0.235, -0.2829, -0.3196, -0.3523], "I1": [0.3612, 0.3227, 0.2644, 0.2685], "A2": [-0.1012, -0.1283, -0.0714, -0.065], "B2": [-0.0571, -0.0334, -0.0782, -0.034], "C2": [0.1577, 0.1566, 0.2013, 0.2102], "D2": [-0.0158, -0.0195, -0.0266, -0.0645], "E2": [-0.2785, -0.3323, -0.2794, -0.2821], "F2": [0.3382, 0.3769, 0.365, 0.3139], "G2": [-0.1636, -0.1481, -0.2017, -0.2438], "H2": [-0.1409, -0.1334, -0.1569, -0.0976], "I2": [0.2984, 0.2526, 0.2843, 0.2971], "A3": [-0.0447, -0.0098, -0.0427, -0.04], "B3": [0.3602, 0.3543, 0.3474, 0.3906], "C3": [0.2259, 0.2847, 0.2613, 0.2758], "D3": [-0.0947, -0.0815, -0.0527, 0.001], "E3": [-0.148, -0.1831, -0.2178, -0.1985], "F3": [0.0396, -0.0016, -0.0407, -0.0917], "G3": [0.4757, 0.416, 0.4101, 0.4214], "H3": [0.2401, 0.2151, 0.1829, 0.2077], "I3": [0.0664, 0.0908, 0.0853, 0.1078], "A4": [0.2686, 0.3195, 0.354, 0.369], "B4": [0.218, 0.2373, 0.2893, 0.2803], "C4": [0.1844, 0.1897, 0.2074, 0.2564], "D4": [0.0681, 0.1073, 0.0559, 0.0158], "E4": [0.2947, 0.2716, 0.3015, 0.3098], "F4": [-0.2302, -0.2556, -0.3007, -0.2781], "G4": [-0.1338, -0.1098, -0.0567, -0.0566], "H4": [0.2188, 0.2181, 0.1678, 0.1126], "I4": [-0.0703, -0.0785, -0.0998, -0.1298]}}}];
+
+// ============================================================
+// CONSTANTS
+// ============================================================
+const BOX_LIST = ['A1','B1','C1','D1','E1','F1','G1','H1','I1',
+                  'A2','B2','C2','D2','E2','F2','G2','H2','I2',
+                  'A3','B3','C3','D3','E3','F3','G3','H3','I3',
+                  'A4','B4','C4','D4','E4','F4','G4','H4','I4'];
+const COL_NAMES = ['A','B','C','D','E','F','G','H','I'];
+const ROW_NAMES = ['1','2','3','4'];
+const CONSENT_ITEMS_TEXT = [
+  'I confirm that I have read and understand the Participant Information Sheet.',
+  'I have had the opportunity to ask questions and have had these answered satisfactorily.',
+  'I understand that my participation is voluntary and that I am free to withdraw at any time without giving a reason.',
+  'I agree that data gathered in this study may be stored anonymously and securely, and may be used for future research.',
+  'I agree to take part in this study.'
+];
+
+// Questionnaire items (treated as separate statements, including 1a–1g)
+const QUESTION_TEXTS = [
+  'I am able to use new computer technology when I have just the built-in help for assistance.',
+  'I am able to use new computer technology when I have seen someone else using it before trying it myself.',
+  'I am able to use new computer technology when no one is around to help me if I need it.',
+  'I am able to use new computer technology when someone else has helped me get started.',
+  'I am able to use new computer technology when someone has shown me how to do it first.',
+  'I am able to use new computer technology when I have used similar technology before to do the same task.',
+  'I am able to use new computer technology when I have never used anything like it before.',
+  'I am not confident about my ability to use and learn new computer technology. I have other strengths.',
+  'I make time to explore new computer technology that is not critical to my job.',
+  'One reason I spend time and money on new computer technology is because it’s a way for me to look good with peers.',
+  'It’s fun to try new computer technology that is not yet available to everyone.',
+  'I enjoy finding the lesser-known features and capabilities of the new computer technology I use.',
+  'I explore areas of new computer technology before it is time for me to use it.',
+  'I’m never satisfied with the default settings for my new computer technology; I customize.',
+  'I want to get things done right the first time, so before I decide how to take action, I gather as much information as I can.',
+  'I always do extensive research and comparison shopping before making important purchases.',
+  'When a decision needs to be made, it is important to me to gather relevant details before deciding, in order to be sure of the direction we are heading.',
+  'I avoid “advanced” buttons or sections in new computer technology.',
+  'I avoid activities that are dangerous or risky.',
+  'Despite the risks, I use features in new computer technology that haven’t been proven to work.'
+];
+
+// Post-experiment questionnaire items
+const POST_ITEMS = [
+  { type: 'free', prompt: 'Looking back at the games, were there any specific tiles where the score shown in the visualisations seemed incorrect or surprising to you? If so, which tiles, and what made the score seem wrong?' },
+  { type: 'free', prompt: 'Did Agent Blue always appear to select the move that its own scores suggested it should? If not, can you describe a moment where you felt it deviated from what the scores indicated?' },
+  { type: 'free', prompt: 'Were there any moments in the games where you felt Agent Blue missed an important opportunity — for example, a winning move it didn’t take, or a chance to block Agent Red? Please describe what you noticed.' },
+  { type: 'likert', prompt: 'How often did Agent Blue appear to select the move with the highest score shown in the Best-to-Worst chart?', scale: ['Never', 'Sometimes', 'Always'] },
+  { type: 'likert', prompt: 'Agent Blue’s scoring appeared to take into account what Agent Red was doing on the board.', scale: ['Strongly disagree', 'Neutral', 'Strongly agree'] },
+  { type: 'likert', prompt: 'How would you describe Agent Red’s overall behaviour across the games?', scale: ['Completely random', '', 'Clearly strategic'] },
+  { type: 'likert', prompt: 'How would you describe Agent Blue’s overall behaviour across the games?', scale: ['Completely random', '', 'Clearly purposeful'] },
+  { type: 'likert', prompt: 'When Agent Blue had the opportunity to win, it took that winning move promptly rather than continuing to play elsewhere.', scale: ['Strongly disagree', 'Neutral', 'Strongly agree'] },
+  { type: 'likert', prompt: 'Agent Blue appeared to adapt or learn from how the game was unfolding.', scale: ['Strongly disagree', 'Neutral', 'Strongly agree'] },
+  { type: 'free', prompt: 'Is there anything else you noticed about Agent Blue’s decision-making that you haven’t had a chance to describe yet?' }
+];
+
+// ============================================================
+// APP STATE
+// ============================================================
+let state = {
+  screen: 'consent',        // consent | tutorial | study | thanks
+  isTutorial: false,
+  tutorialGameIndex: 0,      // 0 or 1
+  tutorialStep: 0,           // slide step 0-4
+  consentTab: 0,
+  consentChecks: [false, false, false, false, false],
+  participantName: '',
+  demographics: { gender: '', age: '' },
+  participantId: '',
+  questionnaireAnswers: new Array(QUESTION_TEXTS.length).fill(null),
+  postAnswers: new Array(POST_ITEMS.length).fill(null),
+  currentGameIndex: 0,
+  moveNum: 0,
+  hoveredBox: null,
+  awaitingPrediction: false,
+  predictionRevealPending: false, // after prediction clicked, before next move
+  predictedMoves: {},             // Set of move keys already predicted per game
+  studyData: {
+    participant_id: '',
+    consent_timestamp: '',
+    demographics: {},
+    questionnaire: [],
+    post_questionnaire: [],
+    games: []
+  }
+};
+
+// Per-game derived variables
+let gv = {}; // gameVars
+
+// ============================================================
+// GAME LOGIC
+// ============================================================
+function initGame(gameIndex) {
+  const g = state.isTutorial ? TUTORIAL_GAMES[gameIndex] : GAME_DATA.board_data[gameIndex];
+  const v = {};
+  v.gameNum = g.GameNum;
+  v.goesFirst = g['goes-first'];
+  v.winner = g.winner;
+  v.maxMove = g.max_moves;
+  v.winSequence = g.win_sequence;
+  v.gameSummary = g.game_summary || '';
+
+  if (v.goesFirst === 'X') {
+    v.firstArray  = g['x-moves'];
+    v.secondArray = g['o-moves'];
+    v.btwStartI   = 1;
+  } else {
+    v.firstArray  = g['o-moves'];
+    v.secondArray = g['x-moves'];
+    v.btwStartI   = 2;
+  }
+
+  // Build allMoves (interleaved)
+  v.allMoves = [];
+  for (let i = 0; i < v.firstArray.length + v.secondArray.length; i++) {
+    if (i % 2 === 0) v.allMoves.push(v.firstArray[i/2]);
+    else              v.allMoves.push(v.secondArray[(i-1)/2]);
+  }
+
+  // BTW arrays (Blue's move rankings)
+  const btwLen = Math.ceil(v.maxMove / 2);
+  v.btwArrays       = [];
+  v.btwScoresArrays = [];
+  let bi = v.btwStartI;
+  for (let i = 0; i < btwLen; i++) {
+    v.btwArrays.push(g['BTW-arrays']['BTW-' + bi]);
+    v.btwScoresArrays.push(g['win_values']['BTW-' + bi]);
+    bi += 2;
+  }
+
+  gv = v;
+
+  // Init prediction tracking
+  const pmKey = state.isTutorial ? 'T' + gameIndex : gameIndex;
+  if (!state.predictedMoves[pmKey]) {
+    state.predictedMoves[pmKey] = new Set();
+  }
+  // Init study data slot (skip for tutorial games)
+  if (!state.isTutorial && !state.studyData.games[gameIndex]) {
+    state.studyData.games[gameIndex] = {
+      game_index: gameIndex,
+      game_num: v.gameNum,
+      predictions: [],
+      button_clicks: []
+    };
+  }
+}
+
+function getOccupied(moveNum) {
+  const first = [], second = [];
+  let fi = 0, si = 0;
+  for (let i = 1; i <= moveNum; i++) {
+    if (i % 2 === 1) first.push(gv.firstArray[fi++]);
+    else              second.push(gv.secondArray[si++]);
+  }
+  return { first, second };
+}
+
+function getSymbol(boxLabel, first, second) {
+  if (gv.goesFirst === 'X') {
+    if (first.includes(boxLabel))  return 'X';
+    if (second.includes(boxLabel)) return 'O';
+  } else {
+    if (first.includes(boxLabel))  return 'O';
+    if (second.includes(boxLabel)) return 'X';
+  }
+  return null;
+}
+
+function getMoveNext(moveNum) {
+  if (gv.goesFirst === 'X') return moveNum % 2 === 0 ? 'X' : 'O';
+  else                       return moveNum % 2 === 0 ? 'O' : 'X';
+}
+
+function isBlueNext(moveNum) {
+  return getMoveNext(moveNum) === 'X';
+}
+
+function shouldAskPrediction() {
+  if (state.moveNum >= gv.maxMove) return false;
+  if (!isBlueNext(state.moveNum)) return false;
+  const pmKey = state.isTutorial ? 'T' + state.currentGameIndex : state.currentGameIndex;
+  const key = `${state.currentGameIndex}_${state.moveNum}`;
+  return !state.predictedMoves[pmKey].has(key);
+}
+
+function getBTWLimit(moveNum) {
+  if (gv.goesFirst === 'X') return Math.ceil(moveNum / 2);
+  else                       return Math.floor(moveNum / 2);
+}
+
+// ============================================================
+// CONSENT SCREEN LOGIC
+// ============================================================
+function initConsent() {
+  // Set date
+  const d = new Date();
+  const dateStr = d.toLocaleDateString('en-GB');
+  document.getElementById('consent-date').value = dateStr;
+
+  // Read PID from URL
+  const params = new URLSearchParams(window.location.search);
+  const pid = params.get('pid') || 'UNKNOWN';
+  state.participantId = pid;
+  document.getElementById('pid-display').textContent = pid;
+
+  // Render consent checkboxes
+  const container = document.getElementById('consent-items');
+  container.innerHTML = CONSENT_ITEMS_TEXT.map((text, i) => `
+    <div class="consent-item" onclick="toggleConsent(${i})">
+      <div class="consent-cb${state.consentChecks[i] ? ' checked' : ''}" id="cb-${i}"></div>
+      <label class="consent-label"><span class="consent-num">${i+1}.</span>${text}</label>
+    </div>
+  `).join('');
+
+  // Build questionnaire radio groups
+  initQuestionnaire();
+
+  updateConsentState();
+}
+
+function toggleConsent(i) {
+  state.consentChecks[i] = !state.consentChecks[i];
+  const cb = document.getElementById('cb-' + i);
+  if (cb) {
+    cb.className = 'consent-cb' + (state.consentChecks[i] ? ' checked' : '');
+  }
+  updateConsentState();
+}
+
+// Questionnaire initialisation and response tracking
+function initQuestionnaire() {
+  const container = document.getElementById('questionnaire-items');
+  if (!container) return;
+  container.innerHTML = QUESTION_TEXTS.map((text, i) => `
+    <div class="q-item">
+      <p><strong>${i+1}.</strong> ${text}</p>
+      <div class="likert">
+        ${[1,2,3,4,5,6,7,8,9].map(val =>
+          `<input type="radio" name="q${i}" id="q${i}v${val}" value="${val}" onchange="updateQuestionnaire(${i},${val})">
+           <label for="q${i}v${val}" data-val="${val}"></label>`
+        ).join('')}
+        <div class="scale-labels">
+          <span>completely agree</span>
+          <span>neither agree or disagree</span>
+          <span>completely disagree</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateQuestionnaire(idx, val) {
+  state.questionnaireAnswers[idx] = val;
+  updateConsentState();
+}
+
+// ------------------------------------------------------------
+// POST-EXPERIMENT QUESTIONNAIRE
+// ------------------------------------------------------------
+function initPostQuestionnaire() {
+  const container = document.getElementById('post-items');
+  if (!container) return;
+  container.innerHTML = POST_ITEMS.map((item, i) => {
+    if (item.type === 'free') {
+      return `
+        <div class="post-item">
+          <p><strong>${i+1}.</strong> ${item.prompt}</p>
+          <textarea oninput="updatePostAnswer(${i}, this.value)"></textarea>
+        </div>
+      `;
+    } else {
+      // likert
+      const labels = item.scale || ['','',''];
+      return `
+        <div class="post-item">
+          <p><strong>${i+1}.</strong> ${item.prompt}</p>
+          <div class="likert">
+            ${[1,2,3,4,5].map(val =>
+              `<input type="radio" name="postq${i}" id="postq${i}v${val}" value="${val}" onchange="updatePostAnswer(${i},${val})">
+               <label for="postq${i}v${val}" data-val="${val}"></label>`
+            ).join('')}
+            <div class="scale-labels">
+              <span>${labels[0] || ''}</span>
+              <span>${labels[1] || ''}</span>
+              <span>${labels[2] || ''}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  }).join('');
+  updatePostState();
+}
+
+function updatePostAnswer(idx, val) {
+  state.postAnswers[idx] = typeof val === 'string' ? val.trim() : val;
+  updatePostState();
+}
+
+function updatePostState() {
+  const btn = document.getElementById('post-submit-btn');
+  const statusEl = document.getElementById('post-status');
+  const answered = POST_ITEMS.reduce((count, item, idx) => {
+    const ans = state.postAnswers[idx];
+    if (item.type === 'free') {
+      return count + (ans && ans.length > 0 ? 1 : 0);
+    } else {
+      return count + (ans !== null ? 1 : 0);
+    }
+  }, 0);
+  const total = POST_ITEMS.length;
+  btn.disabled = answered !== total;
+  statusEl.textContent = answered === total ? '✓ All questions answered' : `${answered}/${total} answered`;
+}
+
+function submitPostResponses() {
+  state.studyData.post_questionnaire = state.postAnswers.slice();
+  document.getElementById('post-screen').classList.add('hidden');
+  document.getElementById('thanks-screen').classList.remove('hidden');
+  submitData();
+}
+
+function switchTab(idx) {
+  // Hide all
+  [0,1,2,3].forEach(i => {
+    document.getElementById('tab-' + i).classList.toggle('hidden', i !== idx);
+    document.getElementById('tab-btn-' + i).classList.toggle('active', i === idx);
+  });
+  state.consentTab = idx;
+  document.getElementById('tab-back-btn').classList.toggle('hidden', idx === 0);
+  updateConsentState();
+}
+
+function nextTab() {
+  if (state.consentTab < 3) {
+    switchTab(state.consentTab + 1);
+  } else {
+    startStudy();
+  }
+}
+
+function prevTab() {
+  if (state.consentTab > 0) switchTab(state.consentTab - 1);
+}
+
+function updateConsentState() {
+  state.participantName = (document.getElementById('participant-name') || {}).value || '';
+  state.demographics.gender = (document.getElementById('demo-gender') || {}).value || '';
+  state.demographics.age    = (document.getElementById('demo-age') || {}).value || '';
+
+  const allChecked = state.consentChecks.every(Boolean);
+  const hasName    = state.participantName.trim().length > 0;
+  const nextBtn    = document.getElementById('consent-next-btn');
+  const statusEl   = document.getElementById('consent-status');
+
+  // if we've progressed beyond demographics ensure tab2 shows completed
+  if (state.consentTab > 2) {
+    const btn2 = document.getElementById('tab-btn-2');
+    if (btn2) {
+      btn2.className = 'tab-btn completed';
+      btn2.querySelector('.tab-num').textContent = '✓';
+    }
+  }
+
+  // Tab 0: just "continue"
+  if (state.consentTab === 0) {
+    nextBtn.disabled = false;
+    nextBtn.textContent = 'Continue →';
+    statusEl.textContent = 'Read the information, then continue to consent.';
+    document.getElementById('tab-btn-0').querySelector('.tab-num').className = 'tab-num';
+  }
+  // Tab 1: need all checkboxes + name
+  else if (state.consentTab === 1) {
+    const ready = allChecked && hasName;
+    nextBtn.disabled = !ready;
+    nextBtn.textContent = ready ? 'Continue →' : 'Tick all boxes & enter name to continue';
+    statusEl.textContent = !allChecked ? `${state.consentChecks.filter(Boolean).length}/5 boxes ticked` :
+                           !hasName    ? 'Please enter your name' : '✓ All consent items complete';
+    if (allChecked && hasName) {
+      document.getElementById('tab-btn-1').className = 'tab-btn completed';
+      document.getElementById('tab-btn-1').querySelector('.tab-num').textContent = '✓';
+    }
+  }
+  // Tab 2: demographics — gender required
+  else if (state.consentTab === 2) {
+    const hasGender = state.demographics.gender.trim().length > 0;
+    nextBtn.disabled = !hasGender;
+    nextBtn.textContent = hasGender ? 'Continue →' : 'Please enter your gender to continue';
+    statusEl.textContent = hasGender ? 'Gender provided' : 'Gender is required';
+    if (hasGender) {
+      document.getElementById('tab-btn-2').className = 'tab-btn completed';
+      document.getElementById('tab-btn-2').querySelector('.tab-num').textContent = '✓';
+    }
+  }
+  // Tab 3: questionnaire must be fully answered
+  else if (state.consentTab === 3) {
+    const answered = state.questionnaireAnswers.filter(v => v !== null).length;
+    const total = QUESTION_TEXTS.length;
+    const ready = answered === total;
+    nextBtn.disabled = !ready;
+    nextBtn.textContent = ready ? 'Begin Study →' : 'Answer all questions to continue';
+    statusEl.textContent = ready ? '✓ Questionnaire complete' : `${answered}/${total} answered`;
+    if (ready) {
+      document.getElementById('tab-btn-3').className = 'tab-btn completed';
+      document.getElementById('tab-btn-3').querySelector('.tab-num').textContent = '✓';
+    }
+  }
+}
+
+// ============================================================
+// STUDY FLOW
+// ============================================================
+function startStudy() {
+  state.studyData.participant_id = state.participantId;
+  state.studyData.consent_timestamp = new Date().toISOString();
+  state.studyData.participant_name = state.participantName;
+  state.studyData.demographics = { ...state.demographics };
+  state.studyData.questionnaire = state.questionnaireAnswers.slice();
+
+  document.getElementById('consent-screen').classList.add('hidden');
+  startTutorialSlides();
+}
+
+function startTutorialSlides() {
+  document.getElementById('tutorial-screen').classList.remove('hidden');
+  state.tutorialStep = 0;
+  renderTutorialSlides();
+}
+
+function renderTutorialSlides() {
+  const total = 5;
+  const dotsEl = document.getElementById('tut-step-dots');
+  dotsEl.innerHTML = '';
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement('div');
+    d.className = 'tut-step-dot' + (i < state.tutorialStep ? ' done' : i === state.tutorialStep ? ' active' : '');
+    dotsEl.appendChild(d);
+  }
+  for (let i = 0; i < total; i++) {
+    const el = document.getElementById('tut-step-' + i);
+    if (el) el.classList.toggle('visible', i === state.tutorialStep);
+  }
+  document.getElementById('tut-footer-label').textContent = `Step ${state.tutorialStep + 1} of ${total}`;
+  document.getElementById('tut-back-btn').classList.toggle('hidden', state.tutorialStep === 0);
+  const nextBtn = document.getElementById('tut-next-btn');
+  nextBtn.textContent = state.tutorialStep === total - 1 ? 'Start Practice Games →' : 'Continue →';
+}
+
+function tutNextStep() {
+  const total = 5;
+  if (state.tutorialStep < total - 1) {
+    state.tutorialStep++;
+    renderTutorialSlides();
+  } else {
+    document.getElementById('tutorial-screen').classList.add('hidden');
+    document.getElementById('study-screen').classList.remove('hidden');
+    state.isTutorial = true;
+    state.tutorialGameIndex = 0;
+    state.currentGameIndex = 0;
+    state.moveNum = 0;
+    state.awaitingPrediction = false;
+    state.predictionRevealPending = false;
+    state.hoveredBox = null;
+    initGame(0);
+    showTutorialBanner(0);
+    renderStudy();
+  }
+}
+
+function tutPrevStep() {
+  if (state.tutorialStep > 0) {
+    state.tutorialStep--;
+    renderTutorialSlides();
+  }
+}
+
+function showTutorialBanner(gameIdx) {
+  const banner = document.getElementById('tut-banner');
+  if (!banner) return;
+  const msgs = [
+    '🎮 <strong>Practice Game 1:</strong> Agent Blue (X) goes first. Click <em>Next Move</em> to step through. When tiles turn yellow, <strong>click the tile</strong> you predict Blue will play.',
+    '🎮 <strong>Practice Game 2:</strong> This time Agent Red (O) goes first. Remember — you only predict <strong>Agent Blue\'s</strong> moves. Try hovering over board tiles to see them highlighted in the charts.'
+  ];
+  banner.innerHTML = `<span class="tut-banner-icon">📌</span><span class="tut-banner-text">${msgs[gameIdx]}</span><button class="tut-banner-dismiss" onclick="this.parentElement.classList.add('hidden')">Got it ✕</button>`;
+  banner.classList.remove('hidden');
+}
+
+function endTutorial() {
+  // Called when tutorial games finish; flip into real study after participant
+  // acknowledges the transition.
+  showStudyStartPopup();
+}
+
+function showStudyStartPopup() {
+  const pop = document.getElementById('study-start-popup');
+  if (pop) pop.classList.remove('hidden');
+}
+
+function hideStudyStartPopup() {
+  const pop = document.getElementById('study-start-popup');
+  if (pop) pop.classList.add('hidden');
+}
+
+function startActualStudy() {
+  // Reset state for main study and render initial game.
+  state.isTutorial = false;
+  state.currentGameIndex = 0;
+  state.moveNum = 0;
+  state.awaitingPrediction = false;
+  state.predictionRevealPending = false;
+  state.hoveredBox = null;
+  const b = document.getElementById('tut-banner');
+  if (b) b.classList.add('hidden');
+  initGame(0);
+  renderStudy();
+  hideStudyStartPopup();
+}
+
+function renderStudy() {
+  renderProgressDots();
+  renderGameInfoBar();
+  renderBoard();
+  renderInstruction();
+  renderBTW();
+  renderSTT();
+  renderOTB();
+}
+
+function renderProgressDots() {
+  const el = document.getElementById('game-progress');
+  el.innerHTML = '';
+  if (state.isTutorial) {
+    for (let i = 0; i < 2; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'progress-dot' + (i < state.tutorialGameIndex ? ' done' : i === state.tutorialGameIndex ? ' current' : '');
+      dot.title = 'Tutorial Game ' + (i+1);
+      el.appendChild(dot);
+    }
+    const lbl = document.createElement('span');
+    lbl.style.cssText = 'color:rgba(255,255,255,0.7);font-size:12px;margin-left:8px;';
+    lbl.textContent = 'Tutorial';
+    el.appendChild(lbl);
+    return;
+  }
+  for (let i = 0; i < 10; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'progress-dot' + (i < state.currentGameIndex ? ' done' : i === state.currentGameIndex ? ' current' : '');
+    dot.title = 'Game ' + (i+1);
+    el.appendChild(dot);
+  }
+}
+
+function renderGameInfoBar() {
+  const bar = document.getElementById('game-info-bar');
+  const xFirst = gv.goesFirst === 'X';
+  bar.innerHTML = `
+    <div class="gi-item">
+      <span class="gi-label">Game</span>
+      <strong style="font-size:16px; color:#003b5c">${state.isTutorial ? "Tutorial " + (state.tutorialGameIndex + 1) + " / 2" : (state.currentGameIndex + 1) + " / 10"}</strong>
+    </div>
+    <div class="gi-item">
+      <span class="gi-label">X Player:</span>
+      <span class="agent-badge blue">
+        <img src="${IMG_X}" width="16" height="16" alt="X"> Blue
+      </span>
+    </div>
+    <span class="vs-text">vs</span>
+    <div class="gi-item">
+      <span class="gi-label">O Player:</span>
+      <span class="agent-badge red">
+        <img src="${IMG_O}" width="16" height="16" alt="O"> Red
+      </span>
+    </div>
+    <div class="gi-item">
+      <span class="gi-label">First Move:</span>
+      <img src="${xFirst ? IMG_X : IMG_O}" width="22" height="22" alt="${gv.goesFirst}">
+    </div>
+
+  `;
+}
+
+function renderInstruction() {
+  const el = document.getElementById('instruction-text');
+  if (state.awaitingPrediction && !state.predictionRevealPending) {
+    el.innerHTML = `<div class="predict-prompt">
+      🤔 <strong>Predict Agent Blue's next move</strong><br>
+      Click the tile on the board you think Agent Blue (X) will play next.<br>
+      <small style="opacity:0.8">There are no right or wrong answers — just your best guess!</small>
+    </div>`;
+  } else if (state.predictionRevealPending) {
+    const pred = getLastPrediction();
+    const actual = gv.allMoves[state.moveNum - 1];
+    const correct = pred && pred.predicted_tile === actual;
+    el.innerHTML = `<div class="after-predict-msg">
+      ${correct ? '✅' : '📍'} Your prediction: <strong>${pred ? pred.predicted_tile : '—'}</strong>
+      &nbsp;|&nbsp; Agent Blue played: <strong>${actual}</strong>
+      &nbsp;&nbsp;${correct ? '<span style="color:#16a34a">✓ Correct!</span>' : ''}
+      <br><small>Click "Next Move" to continue.</small>
+    </div>`;
+  } else if (state.moveNum >= gv.maxMove) {
+    const winnerName = gv.winner === 'X' ? 'Agent Blue' : 'Agent Red';
+    el.innerHTML = `<div style="text-align:center; padding:8px 0;">
+      <strong>Game Over — ${winnerName} wins!</strong><br>
+      <small style="color:#6b7280">Winning sequence: ${gv.winSequence.join(', ')}</small>
+    </div>`;
+  } else {
+    const next = getMoveNext(state.moveNum);
+    const nextName = next === 'X' ? 'Agent Blue' : 'Agent Red';
+    el.innerHTML = `<div style="text-align:center; font-size:14px; color:#374151;">
+      Move ${state.moveNum} shown.&nbsp; Next: <strong>${nextName}</strong>
+      ${state.moveNum === 0 ? '<br><small style="color:#6b7280">Click "Next Move" to begin the game.</small>' : ''}
+    </div>`;
+  }
+}
+
+function getLastPrediction() {
+  const gameData = state.studyData.games[state.currentGameIndex];
+  if (!gameData || !gameData.predictions.length) return null;
+  return gameData.predictions[gameData.predictions.length - 1];
+}
+
+// ============================================================
+// BOARD RENDERING
+// ============================================================
+const GB_X1 = 180, GB_Y1 = 30;
+const BOX_W = 80, BOX_H = 80;
+
+function renderBoard() {
+  const svg = d3.select('#board-svg');
+  svg.selectAll('*').remove();
+
+  const { first, second } = getOccupied(state.moveNum);
+  const moveNext = getMoveNext(state.moveNum);
+  const isLastMove = state.moveNum >= gv.maxMove;
+
+  // ---- Column labels ----
+  COL_NAMES.forEach((name, ci) => {
+    svg.append('text')
+      .attr('x', GB_X1 + ci * BOX_W + BOX_W/2)
+      .attr('y', GB_Y1 - 8)
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'auto')
+      .style('font-size', '18px').style('font-weight', '500')
+      .text(name);
+  });
+
+  // ---- Row labels ----
+  ROW_NAMES.forEach((name, ri) => {
+    svg.append('text')
+      .attr('x', GB_X1 - 22)
+      .attr('y', GB_Y1 + ri * BOX_H + BOX_H/2 + 6)
+      .attr('text-anchor', 'middle')
+      .style('font-size', '18px').style('font-weight', '500')
+      .text(name);
+  });
+
+  // ---- Grid lines ----
+  for (let ri = 1; ri < 4; ri++) {
+    svg.append('line')
+      .attr('x1', GB_X1).attr('x2', GB_X1 + 9 * BOX_W)
+      .attr('y1', GB_Y1 + ri * BOX_H).attr('y2', GB_Y1 + ri * BOX_H)
+      .style('stroke', 'gray').style('stroke-width', 3);
+  }
+  for (let ci = 1; ci < 9; ci++) {
+    svg.append('line')
+      .attr('y1', GB_Y1).attr('y2', GB_Y1 + 4 * BOX_H)
+      .attr('x1', GB_X1 + ci * BOX_W).attr('x2', GB_X1 + ci * BOX_W)
+      .style('stroke', 'gray').style('stroke-width', 3);
+  }
+
+  // ---- Cells: backgrounds + symbols ----
+  BOX_LIST.forEach((boxLabel, boxIdx) => {
+    const ci = boxIdx % 9;
+    const ri = Math.floor(boxIdx / 9);
+    const cx = GB_X1 + ci * BOX_W;
+    const cy = GB_Y1 + ri * BOX_H;
+
+    const symbol = getSymbol(boxLabel, first, second);
+    const isWinCell = isLastMove && gv.winSequence.includes(boxLabel);
+    const isOccupied = symbol !== null;
+    const isPredictable = state.awaitingPrediction && !state.predictionRevealPending && !isOccupied;
+
+    let fillColor = 'white';
+    if (isWinCell) {
+      fillColor = gv.winner === 'X' ? '#c7d9f8' : '#fecaca';
+    } else if (isPredictable && state.hoveredBox === boxIdx) {
+      fillColor = '#fbbf24';
+    } else if (isPredictable) {
+      fillColor = '#fefce8';
+    }
+
+    // Background rect — attach hover events directly here
+    const cellRect = svg.append('rect')
+      .attr('x', cx).attr('y', cy)
+      .attr('width', BOX_W).attr('height', BOX_H)
+      .attr('id', 'cell-bg-' + boxIdx)
+      .style('fill', fillColor)
+      .style('stroke', isPredictable ? '#f59e0b' : 'none')
+      .style('stroke-width', isPredictable ? 2.5 : 0)
+      .style('cursor', isPredictable ? 'pointer' : 'default');
+
+    if (isOccupied) {
+      svg.append('image')
+        .attr('href', symbol === 'X' ? IMG_X : IMG_O)
+        .attr('x', cx + 5).attr('y', cy + 8)
+        .attr('width', BOX_W - 4).attr('height', BOX_H - 10)
+        .style('pointer-events', 'none');
+
+      const moveOrder = gv.allMoves.indexOf(boxLabel) + 1;
+      svg.append('text')
+        .attr('x', cx + BOX_W * 0.72).attr('y', cy + 18)
+        .style('font-size', '14px').style('font-weight', '600').style('fill', '#374151')
+        .style('pointer-events', 'none')
+        .text(moveOrder);
+    }
+  });
+
+  // ---- Overlay rects for ALL cells: hover always updates charts; click only when predicting ----
+  BOX_LIST.forEach((boxLabel, boxIdx) => {
+    const symbol = getSymbol(boxLabel, first, second);
+    const isOccupied = symbol !== null;
+    const isPredictNow = state.awaitingPrediction && !state.predictionRevealPending && !isOccupied;
+    const ci = boxIdx % 9;
+    const ri = Math.floor(boxIdx / 9);
+    const cx = GB_X1 + ci * BOX_W;
+    const cy = GB_Y1 + ri * BOX_H;
+
+    const overlay = svg.append('rect')
+      .attr('x', cx).attr('y', cy)
+      .attr('width', BOX_W).attr('height', BOX_H)
+      .style('fill', 'transparent')
+      .style('stroke', 'none')
+      .style('cursor', isPredictNow ? 'pointer' : 'default');
+
+    overlay
+      .on('mouseenter', () => {
+        state.hoveredBox = boxIdx;
+        // Direct update cell bg for performance
+        if (isPredictNow) d3.select('#cell-bg-' + boxIdx).style('fill', '#fbbf24');
+        // Re-render charts to cross-highlight
+        renderBTW(); renderSTT(); renderOTB();
+      })
+      .on('mouseleave', () => {
+        state.hoveredBox = null;
+        if (isPredictNow) d3.select('#cell-bg-' + boxIdx).style('fill', '#fefce8');
+        renderBTW(); renderSTT(); renderOTB();
+      });
+
+    if (isPredictNow) {
+      overlay.on('click', (event) => {
+        event.stopPropagation();
+        handlePredictionClick(boxLabel);
+      });
+    }
+  });
+
+  // ---- "Game N" label ----
+  svg.append('text')
+    .attr('x', GB_X1 - 10).attr('y', GB_Y1 - 55)
+    .style('font-size', '16px').style('font-weight', '600').style('fill', '#003b5c')
+    .text(`Game ${state.currentGameIndex + 1}`);
+
+  // ---- Question label (BEFORE/AFTER) ----
+  if (state.awaitingPrediction && !state.predictionRevealPending) {
+    svg.append('text')
+      .attr('x', GB_X1 + 150).attr('y', GB_Y1 - 55)
+      .style('font-size', '17px').style('font-weight', '700').style('fill', '#92400e')
+      .text('⟶ Click your prediction on the board above');
+  } else if (state.predictionRevealPending) {
+    svg.append('text')
+      .attr('x', GB_X1 + 100).attr('y', GB_Y1 - 55)
+      .style('font-size', '16px').style('fill', '#1d4ed8')
+      .html('')
+      .text('Blue has played — click Next Move to continue');
+  } else if (!isLastMove) {
+    const isBefore = isBlueNext(state.moveNum);
+    if (isBefore) {
+      svg.append('text')
+        .attr('x', GB_X1 + 100).attr('y', GB_Y1 - 55)
+        .style('font-size', '16px').style('fill', '#374151')
+        .text('Answer the BEFORE move questions for Agent Blue');
+    } else {
+      svg.append('text')
+        .attr('x', GB_X1 + 100).attr('y', GB_Y1 - 55)
+        .style('font-size', '16px').style('fill', '#1d4ed8')
+        .text('Answer the AFTER move questions for Agent Blue');
+    }
+  }
+
+  // ---- "Who moves next" indicator ----
+  if (!isLastMove) {
+    const nextSym = moveNext === 'X' ? IMG_X : IMG_O;
+    svg.append('text')
+      .attr('x', GB_X1 + 3.2 * BOX_H).attr('y', GB_Y1 + 4.55 * BOX_H)
+      .style('font-size', '16px').style('font-weight', '500')
+      .text('Who moves next:');
+    svg.append('rect')
+      .attr('x', GB_X1 + 5.35 * BOX_H).attr('y', GB_Y1 + 4.27 * BOX_H)
+      .attr('width', 40).attr('height', 27)
+      .style('fill', 'white').style('stroke', 'black').style('stroke-width', 0.5);
+    svg.append('image')
+      .attr('href', nextSym)
+      .attr('x', GB_X1 + 5.4 * BOX_H).attr('y', GB_Y1 + 4.26 * BOX_H)
+      .attr('width', 30).attr('height', 30);
+  }
+
+  // ---- Showing Move text ----
+  svg.append('text')
+    .attr('x', GB_X1 + 3.4 * BOX_H).attr('y', GB_Y1 + 4.6 * BOX_H)
+    .style('font-size', '16px').style('font-weight', '500')
+    .text('');
+  svg.append('text')
+    .attr('x', GB_X1 + 0.3 * BOX_H).attr('y', GB_Y1 + 4.6 * BOX_H)
+    .style('font-size', '16px').style('font-weight', '500')
+    .text(`Showing Move: ${state.moveNum}`);
+
+  // ---- Prior Move button ----
+  const priorEnabled = state.moveNum > 0 && !state.awaitingPrediction;
+  const priorG = svg.append('g')
+    .style('cursor', priorEnabled ? 'pointer' : 'default')
+    .style('opacity', priorEnabled ? 1 : 0.4);
+  priorG.append('rect')
+    .attr('x', GB_X1 + 1.5 * BOX_H).attr('y', GB_Y1 + 4.2 * BOX_H)
+    .attr('rx', 10).attr('ry', 10)
+    .attr('width', BOX_W * 1.6).attr('height', BOX_H * 0.8)
+    .style('fill', '#e1e1e1').style('stroke', priorEnabled ? '#6f6f6f' : '#b1afaf').style('stroke-width', 3);
+  priorG.append('text')
+    .attr('x', GB_X1 + 1.7 * BOX_H - 10).attr('y', GB_Y1 + 4.5 * BOX_H)
+    .style('font-size', '18px').style('font-weight', '500').style('fill', priorEnabled ? 'black' : '#888')
+    .text('Prior Move');
+  priorG.append('image')
+    .attr('href', IMG_BACK)
+    .attr('x', GB_X1 + 10 + 1.7 * BOX_H).attr('y', GB_Y1 + 25 + 4.2 * BOX_H)
+    .attr('width', 60).attr('height', 40);
+  if (priorEnabled) {
+    priorG.on('click', handlePriorMove);
+  }
+
+  // ---- Next Move / Next Game button ----
+  const showNextGame = isLastMove;
+  const nextEnabled = !state.awaitingPrediction || state.predictionRevealPending;
+  const isLastGame = state.currentGameIndex >= 9;
+
+  if (showNextGame) {
+    const label = isLastGame ? 'Finish Study' : 'Next Game →';
+    const nextG = svg.append('g').style('cursor', 'pointer');
+    nextG.append('rect')
+      .attr('x', GB_X1 + 6.2 * BOX_H).attr('y', GB_Y1 + 4.2 * BOX_H)
+      .attr('rx', 10).attr('ry', 10)
+      .attr('width', BOX_W * 2.0).attr('height', BOX_H * 0.8)
+      .style('fill', '#003b5c').style('stroke', '#003b5c').style('stroke-width', 3);
+    nextG.append('text')
+      .attr('x', GB_X1 + 6.3 * BOX_H + 6).attr('y', GB_Y1 + 4.5 * BOX_H)
+      .style('font-size', '18px').style('font-weight', '600').style('fill', 'white')
+      .text(label);
+    nextG.on('click', handleNextGame);
+  } else {
+    const nextG = svg.append('g')
+      .style('cursor', nextEnabled ? 'pointer' : 'default')
+      .style('opacity', nextEnabled ? 1 : 0.5);
+    nextG.append('rect')
+      .attr('x', GB_X1 + 6.2 * BOX_H).attr('y', GB_Y1 + 4.2 * BOX_H)
+      .attr('rx', 10).attr('ry', 10)
+      .attr('width', BOX_W * 1.6).attr('height', BOX_H * 0.8)
+      .style('fill', '#e1e1e1').style('stroke', nextEnabled ? '#6f6f6f' : '#b1afaf').style('stroke-width', 3);
+    nextG.append('text')
+      .attr('x', GB_X1 + 6.2 * BOX_H + 6).attr('y', GB_Y1 + 4.5 * BOX_H)
+      .style('font-size', '18px').style('font-weight', '500').style('fill', nextEnabled ? 'black' : '#888')
+      .text('Next Move');
+    nextG.append('image')
+      .attr('href', IMG_FOR)
+      .attr('x', GB_X1 + 35 + 6.2 * BOX_H).attr('y', GB_Y1 + 25 + 4.2 * BOX_H)
+      .attr('width', 60).attr('height', 40);
+    if (nextEnabled) {
+      nextG.on('click', handleNextMove);
+    }
+  }
+}
+
+// ============================================================
+// USER INTERACTION HANDLERS
+// ============================================================
+function handlePredictionClick(boxLabel) {
+  if (!state.awaitingPrediction || state.predictionRevealPending) return;
+
+  const nextMoveLabel = gv.allMoves[state.moveNum]; // the actual next move
+  const timestamp = new Date().toLocaleTimeString();
+  const timeTaken = state.predictionStartTime ? Date.now() - state.predictionStartTime : null;
+  const correct = boxLabel === nextMoveLabel;
+  const blueMovesPlayed = state.moveNum === 0 ? 0 :
+    (gv.goesFirst === 'X' ? Math.ceil(state.moveNum / 2) : Math.floor(state.moveNum / 2));
+
+  const predictionRecord = {
+    game_index: state.currentGameIndex,
+    game_num: gv.gameNum,
+    move_number: state.moveNum + 1,
+    blue_move_number: blueMovesPlayed + 1,
+    predicted_tile: boxLabel,
+    actual_tile: nextMoveLabel,
+    correct: correct,
+    reaction_time_ms: timeTaken,
+    timestamp: timestamp
+  };
+
+  if (!state.isTutorial) {
+    state.studyData.games[state.currentGameIndex].predictions.push(predictionRecord);
+  }
+
+  // Mark as predicted so we don't re-ask on back/forward
+  const pmKey = state.isTutorial ? 'T' + state.currentGameIndex : state.currentGameIndex;
+  const key = `${state.currentGameIndex}_${state.moveNum}`;
+  state.predictedMoves[pmKey].add(key);
+
+  // Now reveal the actual move
+  state.moveNum++;
+  state.awaitingPrediction = false;
+  state.predictionRevealPending = true;
+  state.hoveredBox = null;
+
+  renderStudy();
+}
+
+function handleNextMove() {
+  if (state.moveNum >= gv.maxMove) return;
+  if (state.awaitingPrediction && !state.predictionRevealPending) return;
+
+  // Log button click
+  logButtonClick(state.moveNum, 'Next_Move');
+
+  state.predictionRevealPending = false;
+
+  // Check if we should advance or ask prediction
+  if (shouldAskPrediction()) {
+    state.awaitingPrediction = true;
+    state.predictionStartTime = Date.now();
+    renderStudy();
+  } else {
+    // Not Blue's next move, or already predicted — just advance
+    state.awaitingPrediction = false;
+    state.moveNum++;
+    renderStudy();
+  }
+}
+
+function handlePriorMove() {
+  if (state.moveNum <= 0 || state.awaitingPrediction) return;
+  logButtonClick(state.moveNum, 'Prior_Move');
+  state.predictionRevealPending = false;
+  state.moveNum--;
+  // Check if we land on a state that would normally prompt prediction
+  // Only re-prompt if the prediction for this position hasn't been made yet
+  if (shouldAskPrediction()) {
+    state.awaitingPrediction = true;
+    state.predictionStartTime = Date.now();
+  } else {
+    state.awaitingPrediction = false;
+  }
+  renderStudy();
+}
+
+function handleNextGame() {
+  logButtonClick(state.moveNum, 'Next_Game');
+  if (state.isTutorial) {
+    if (state.tutorialGameIndex >= 1) {
+      // Tutorial complete → start real study
+      endTutorial();
+    } else {
+      state.tutorialGameIndex++;
+      state.currentGameIndex = state.tutorialGameIndex;
+      state.moveNum = 0;
+      state.awaitingPrediction = false;
+      state.predictionRevealPending = false;
+      state.hoveredBox = null;
+      initGame(state.currentGameIndex);
+      showTutorialBanner(state.tutorialGameIndex);
+      renderStudy();
+    }
+    return;
+  }
+  if (state.currentGameIndex >= 9) {
+    endStudy();
+  } else {
+    state.currentGameIndex++;
+    state.moveNum = 0;
+    state.awaitingPrediction = false;
+    state.predictionRevealPending = false;
+    state.hoveredBox = null;
+    initGame(state.currentGameIndex);
+    renderStudy();
+  }
+}
+
+function logButtonClick(moveNum, buttonName) {
+  if (state.isTutorial) return;
+  if (!state.studyData.games[state.currentGameIndex]) return;
+  state.studyData.games[state.currentGameIndex].button_clicks.push({
+    showing_move: moveNum,
+    button_clicked: buttonName,
+    when_clicked: new Date().toLocaleTimeString()
+  });
+}
+
+// ============================================================
+// D3 CHART: BEST TO WORST
+// ============================================================
+function renderBTW() {
+  const svg = d3.select('#btw-svg');
+  svg.selectAll('*').remove();
+
+  const vbW = 1100, vbH = 390;
+  const yAx = { x: 80, y1: 50, y2: 320 };
+  const yDiff = (yAx.y2 - yAx.y1) / 20;
+  const btwX1 = 80, btwX2 = 1100, btwY = 340;
+  const boxW = 16, boxH = 6;
+
+  const posScale = d3.scaleLinear().domain([1, -1]).range([yAx.y1, yAx.y2]);
+
+  // Heading
+  svg.append('text').attr('x', (btwX2 - btwX1)/2.2 - 45).attr('y', yAx.y1 - 15)
+    .style('font-size', '2em').style('font-weight', '500').text('Scores best-to-worst (BTW)');
+
+  // Axis
+  svg.append('line').attr('x1', yAx.x).attr('y1', yAx.y1).attr('x2', yAx.x).attr('y2', yAx.y2)
+    .style('stroke','black').style('stroke-width', 2);
+  svg.append('line').attr('x1', btwX1).attr('y1', btwY).attr('x2', btwX2).attr('y2', btwY)
+    .style('stroke','black').style('stroke-width', 2);
+  // Arrow heads
+  [[btwX1, btwY, btwX1+10, btwY-10],[btwX1, btwY, btwX1+10, btwY+10],
+   [btwX2, btwY, btwX2-10, btwY+10],[btwX2, btwY, btwX2-10, btwY-10]].forEach(([x1,y1,x2,y2]) =>
+    svg.append('line').attr('x1',x1).attr('y1',y1).attr('x2',x2).attr('y2',y2)
+      .style('stroke','black').style('stroke-width', 2));
+  // Y labels
+  svg.append('text').attr('x', yAx.x-60).attr('y', yAx.y1+3).style('font-size','22px').style('font-weight','500').text('Win');
+  svg.append('text').attr('x', yAx.x-60).attr('y', yAx.y1+3+yDiff*10).style('font-size','22px').style('font-weight','500').text('Draw');
+  svg.append('text').attr('x', yAx.x-60).attr('y', yAx.y1+3+yDiff*20).style('font-size','22px').style('font-weight','500').text('Loss');
+  svg.append('text').attr('x', btwX1-45).attr('y', btwY+30).style('font-size','18px').text('Best Moves');
+  svg.append('text').attr('x', btwX2-90).attr('y', btwY+30).style('font-size','18px').text('Worst Moves');
+
+  // Horizontal grid
+  const ticks = d3.scaleLinear().domain([0,1]).ticks(21);
+  ticks.forEach((_, xi) => {
+    if (xi % 5 !== 0)
+      svg.append('line').attr('x1', btwX1).attr('y1', yAx.y1+xi*yDiff).attr('x2', btwX2).attr('y2', yAx.y1+xi*yDiff)
+        .style('stroke','gray').style('stroke-width',0.5);
+    else if (xi === 10)
+      svg.append('line').attr('x1', btwX1).attr('y1', yAx.y1+xi*yDiff).attr('x2', btwX2).attr('y2', yAx.y1+xi*yDiff)
+        .style('stroke','black').style('stroke-width',2);
+    else if (xi === 5 || xi === 15)
+      svg.append('line').attr('x1', btwX1).attr('y1', yAx.y1+xi*yDiff).attr('x2', btwX2).attr('y2', yAx.y1+xi*yDiff)
+        .style('stroke','black').style('stroke-width',1);
+  });
+
+  const limit = getBTWLimit(state.moveNum);
+  if (limit <= 0) return;
+
+  const greyScale = d3.scaleSequential().domain([limit-1, 0]).interpolator(d3.interpolateGreys);
+
+  for (let idx = 0; idx < limit; idx++) {
+    const btw_arr = gv.btwArrays[idx];
+    const btw_scores = gv.btwScoresArrays[idx];
+    const isCurrent = idx === limit - 1;
+
+    btw_arr.forEach((box, rank) => {
+      const x = yAx.x + rank * (yAx.x/3);
+      const score = btw_scores[box][idx];
+      const y = posScale(score);
+      const isHov = state.hoveredBox !== null && BOX_LIST[state.hoveredBox] === box;
+      let fill;
+      if (isHov) fill = '#FFFF00';
+      else if (isCurrent) fill = '#0000FF';
+      else fill = greyScale(idx);
+
+      const r = svg.append('rect')
+        .attr('x', x).attr('y', y).attr('width', boxW).attr('height', boxH)
+        .style('fill', fill).style('stroke','black').style('stroke-width',isCurrent?1:0.5);
+
+      if (isCurrent) {
+        r.style('cursor','pointer')
+         .on('mouseenter', () => { state.hoveredBox = BOX_LIST.indexOf(box); renderBoard(); renderBTW(); renderSTT(); renderOTB(); })
+         .on('mouseleave', () => { state.hoveredBox = null; renderBoard(); renderBTW(); renderSTT(); renderOTB(); });
+      }
+    });
+  }
+}
+
+// ============================================================
+// D3 CHART: SCORES THROUGH TIME
+// ============================================================
+function renderSTT() {
+  const svg = d3.select('#stt-svg');
+  svg.selectAll('*').remove();
+
+  const yAx = { x: 80, y1: 50, y2: 320 };
+  const yDiff = (yAx.y2 - yAx.y1) / 20;
+  const btwX1 = 80, btwX2 = 1100, btwY = 355;
+  const sttBoxW = 30, sttBoxH = 6;
+  const posScale = d3.scaleLinear().domain([1,-1]).range([yAx.y1, yAx.y2]);
+
+  svg.append('text').attr('x', (btwX2-btwX1)/2.2-45).attr('y', yAx.y1-15)
+    .style('font-size','2em').style('font-weight','500').text('Scores through-time (TT)');
+
+  // Axes
+  svg.append('line').attr('x1',yAx.x).attr('y1',yAx.y1).attr('x2',yAx.x).attr('y2',yAx.y2)
+    .style('stroke','black').style('stroke-width',2);
+  svg.append('line').attr('x1',btwX1).attr('y1',btwY).attr('x2',btwX2).attr('y2',btwY)
+    .style('stroke','black').style('stroke-width',2);
+  [[btwX2,btwY,btwX2-10,btwY+10],[btwX2,btwY,btwX2-10,btwY-10]].forEach(([x1,y1,x2,y2]) =>
+    svg.append('line').attr('x1',x1).attr('y1',y1).attr('x2',x2).attr('y2',y2).style('stroke','black').style('stroke-width',2));
+
+  svg.append('text').attr('x',yAx.x-60).attr('y',yAx.y1+3).style('font-size','22px').style('font-weight','500').text('Win');
+  svg.append('text').attr('x',yAx.x-60).attr('y',yAx.y1+3+yDiff*10).style('font-size','22px').style('font-weight','500').text('Draw');
+  svg.append('text').attr('x',yAx.x-60).attr('y',yAx.y1+3+yDiff*20).style('font-size','22px').style('font-weight','500').text('Loss');
+  svg.append('text').attr('x',btwX1+(btwX2-btwX1)/2).attr('y',btwY+30).style('font-size','22px').text('Time');
+
+  d3.scaleLinear().domain([0,1]).ticks(21).forEach((_,xi) => {
+    if (xi%5!==0) svg.append('line').attr('x1',btwX1).attr('y1',yAx.y1+xi*yDiff).attr('x2',btwX2).attr('y2',yAx.y1+xi*yDiff).style('stroke','gray').style('stroke-width',0.5);
+    else if (xi===10) svg.append('line').attr('x1',btwX1).attr('y1',yAx.y1+xi*yDiff).attr('x2',btwX2).attr('y2',yAx.y1+xi*yDiff).style('stroke','black').style('stroke-width',2);
+    else if (xi===5||xi===15) svg.append('line').attr('x1',btwX1).attr('y1',yAx.y1+xi*yDiff).attr('x2',btwX2).attr('y2',yAx.y1+xi*yDiff).style('stroke','black').style('stroke-width',1);
+  });
+
+  const limit = getBTWLimit(state.moveNum);
+  if (limit <= 0) return;
+
+  for (let idx = 0; idx < limit; idx++) {
+    const btw_arr = gv.btwArrays[idx];
+    const btw_scores = gv.btwScoresArrays[idx];
+    const isCurrent = idx === limit - 1;
+    const colX = yAx.x + 5 + idx * 2 * sttBoxW;
+
+    btw_arr.forEach((box, rank) => {
+      const y = posScale(btw_scores[box][idx]);
+      const isHov = state.hoveredBox !== null && BOX_LIST[state.hoveredBox] === box;
+      let fill;
+      if (isHov) fill = '#FFFF00';
+      else if (rank === 0 && isCurrent) fill = '#0000FF';  // top box current = blue
+      else if (rank === 0) fill = '#0000FF';                // top box prev = blue too
+      else if (isCurrent) fill = '#d4d3d3';
+      else fill = '#d4d3d3';
+
+      const r = svg.append('rect')
+        .attr('x', colX).attr('y', y).attr('width', sttBoxW).attr('height', sttBoxH)
+        .style('fill', fill).style('stroke', 'none');
+
+      if (isCurrent) {
+        r.style('cursor', 'pointer')
+         .on('mouseenter', () => { state.hoveredBox = BOX_LIST.indexOf(box); renderBoard(); renderBTW(); renderSTT(); renderOTB(); })
+         .on('mouseleave', () => { state.hoveredBox = null; renderBoard(); renderBTW(); renderSTT(); renderOTB(); });
+      }
+    });
+
+    // Move number label under column
+    const moveLabel = gv.goesFirst === 'X' ? idx*2+1 : idx*2+2;
+    svg.append('text').attr('x', colX + sttBoxW/2).attr('y', yAx.y2+28)
+      .attr('text-anchor','middle').style('font-size','18px').style('font-weight','500').text(moveLabel);
+  }
+}
+
+// ============================================================
+// D3 CHART: ON THE BOARD
+// ============================================================
+function renderOTB() {
+  const svg = d3.select('#otb-svg');
+  svg.selectAll('*').remove();
+
+  const GB_X = 260, GB_Y = 75;
+  const BW = 70, BH = 70;
+  const smallW = 5, smallH = 3;
+  const posScale = (boxY) => d3.scaleLinear().domain([1,-1]).range([boxY+5, boxY+BH-5]);
+
+  svg.append('text').attr('x',(1100-260)/2.2-45).attr('y',70-8)
+    .style('font-size','2em').style('font-weight','500').text('Scores on-the-board (OTB)');
+
+  // Grid
+  ROW_NAMES.forEach((_,ri) => {
+    if (ri!==0) svg.append('line').attr('x1',GB_X).attr('x2',GB_X+9*BW)
+      .attr('y1',GB_Y+ri*BH).attr('y2',GB_Y+ri*BH).style('stroke','gray').style('stroke-width',3);
+    svg.append('line').attr('x1',GB_X).attr('x2',GB_X+9*BW)
+      .attr('y1',GB_Y+ri*BH+BH/2).attr('y2',GB_Y+ri*BH+BH/2).style('stroke','#a81c1c').style('stroke-width',1);
+  });
+  COL_NAMES.forEach((_,ci) => {
+    if (ci!==0) svg.append('line').attr('y1',GB_Y).attr('y2',GB_Y+4*BH)
+      .attr('x1',GB_X+ci*BW).attr('x2',GB_X+ci*BW).style('stroke','gray').style('stroke-width',3);
+  });
+
+  const { first, second } = getOccupied(state.moveNum);
+  const limit = getBTWLimit(state.moveNum);
+
+  // Board cells
+  BOX_LIST.forEach((boxLabel, boxIdx) => {
+    const ci = boxIdx % 9, ri = Math.floor(boxIdx/9);
+    const bx = GB_X + ci * BW, by = GB_Y + ri * BH;
+    const symbol = getSymbol(boxLabel, first, second);
+    const isHov = state.hoveredBox === boxIdx;
+    let stroke = 'none', strokeW = 0;
+    if (symbol === 'X') { stroke = '#2563eb'; strokeW = 5; }
+    else if (symbol === 'O') { stroke = '#dc2626'; strokeW = 5; }
+    if (isHov) { stroke = '#fbbf24'; strokeW = 6; }
+
+    svg.append('rect').attr('x',bx).attr('y',by).attr('width',BW).attr('height',BH)
+      .style('fill','white').style('stroke',stroke).style('stroke-width',strokeW);
+  });
+
+  // Small score boxes (heatmap)
+  if (limit > 0) {
+    gv.btwScoresArrays.slice(0, limit).forEach((btw_scores, btw_idx) => {
+      const xScale = d3.scaleLinear().domain([0, limit <= 1 ? 1 : limit-1]);
+      BOX_LIST.forEach((boxLabel, boxIdx) => {
+        const ci = boxIdx % 9, ri = Math.floor(boxIdx/9);
+        const bx = GB_X + ci * BW, by = GB_Y + ri * BH;
+        const xRange = [bx+5, bx+BW-5];
+        const xPos = d3.scaleLinear().domain([0, Math.max(limit-1,1)]).range(xRange)(btw_idx);
+        const yPos = posScale(by)(btw_scores[boxLabel][btw_idx]);
+        const isHov = state.hoveredBox !== null && BOX_LIST[state.hoveredBox] === boxLabel;
+        svg.append('rect').attr('x',xPos).attr('y',yPos).attr('width',smallW).attr('height',smallH)
+          .style('fill', isHov ? 'yellow' : (btw_idx === limit-1 ? '#003b5c' : '#888888'));
+      });
+    });
+  }
+}
+
+// ============================================================
+// END STUDY
+// ============================================================
+function endStudy() {
+  document.getElementById('study-screen').classList.add('hidden');
+  // show post-experiment questionnaire before final thank you
+  initPostQuestionnaire();
+  document.getElementById('post-screen').classList.remove('hidden');
+}
+
+async function submitData() {
+  const payload = {
+    participant_id:        state.studyData.participant_id,
+    participant_name:      state.studyData.participant_name,
+    consent_timestamp:     state.studyData.consent_timestamp,
+    submission_timestamp:  new Date().toISOString(),
+    demographics:          state.studyData.demographics,
+    questionnaire:         state.studyData.questionnaire,
+    post_questionnaire:    state.studyData.post_questionnaire,
+    // Only the participant's responses — not the embedded game data
+    games: state.studyData.games.map(g => ({
+      game_index:   g.game_index,
+      game_num:     g.game_num,
+      predictions:  g.predictions,
+      button_clicks: g.button_clicks
+    }))
+  };
+
+  // Only trigger local download if submission fails (handled below)
+  // triggerDownload(payload);
+
+  try {
+    const res = await fetch(FORMSPREE_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        participant_id:       payload.participant_id,
+        participant_name:     payload.participant_name,
+        submission_timestamp: payload.submission_timestamp,
+        demographics:         JSON.stringify(payload.demographics),
+        questionnaire:        JSON.stringify(payload.questionnaire),
+        post_questionnaire:   JSON.stringify(payload.post_questionnaire),
+        responses:            JSON.stringify(payload.games)
+      })
+    });
+    if (res.ok) {
+      document.getElementById('submit-status').className = 'submit-status success';
+      document.getElementById('submit-status').innerHTML = '✅ Data submitted successfully to the research team.';
+    } else {
+      throw new Error('Server responded with status ' + res.status);
+    }
+  } catch (err) {
+    // download backup only on fail
+    triggerDownload(payload);
+    document.getElementById('submit-status').className = 'submit-status error';
+    document.getElementById('submit-status').innerHTML =
+      '⚠️ Auto-submission failed — a backup copy has been downloaded to your device. Please email it to <a href="mailto:Jd2117@cam.ac.uk">Jd2117@cam.ac.uk</a>.';
+  }
+}
+
+function triggerDownload(payload) {
+  const json = JSON.stringify(payload, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `study_${payload.participant_id}_${Date.now()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  initConsent();
+});
+</script>
+</body>
+</html>
